@@ -1,5 +1,5 @@
-import { Card, CardContent } from "../common/card"; // Ensure Card is in the same directory or adjust the path
-import Navbar from "../common/header"; // Ensure Navbar is in the same directory or adjust the path
+import { Card, CardContent } from "../../pages/common/card"; // Ensure Card is in the same directory or adjust the path
+import Navbar from "../../pages/common/header"; // Ensure Navbar is in the same directory or adjust the path
 
 export default function Dashboard() {
   return (

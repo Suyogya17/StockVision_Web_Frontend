@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
   };
 
   const handleNavigateToRegister = () => {
-    navigate("/registration");
+    navigate("/register");
   };
 
   const handleNavigateToForgetPassword = () => {
@@ -51,7 +51,7 @@ const LoginPage: React.FC = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 rounded-lg focus-within:ring-2 focus:outline-none text-gray-700"
+                className="w-full px-3 py-2  focus:outline-none text-gray-700"
                 placeholder="Enter your username"
               />
             </div>

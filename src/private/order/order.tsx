@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../common/header"; // Assuming Navbar is in a separate file.
+import Navbar from "../../pages/common/header"; // Assuming Navbar is in a separate file.
 
 export default function OrderPage() {
   // Sample products (this would come from your product list in a real app)

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import Navbar from "../common/header";
+import Navbar from "../../pages/common/header";
 
 export default function ProductPage() {
   const [products, setProducts] = useState<
     {
       id: string;
-      name: string;
+      productName: string;
       price: string;
       quantity: number;
       image: string;
@@ -15,7 +15,7 @@ export default function ProductPage() {
   >([]);
   const [currentProduct, setCurrentProduct] = useState({
     id: "",
-    name: "",
+    productName: "",
     price: "",
     quantity: 1,
     image: "",
@@ -29,7 +29,7 @@ export default function ProductPage() {
       ...products,
       {
         id: Date.now().toString(),
-        name: currentProduct.name,
+        productName: currentProduct.productName,
         price: currentProduct.price,
         quantity: currentProduct.quantity,
         image: currentProduct.image,
@@ -38,7 +38,7 @@ export default function ProductPage() {
     ]);
     setCurrentProduct({
       id: "",
-      name: "",
+      productName: "",
       price: "",
       quantity: 1,
       image: "",
@@ -48,7 +48,7 @@ export default function ProductPage() {
 
   const editProduct = (product: {
     id: string;
-    name: string;
+    productName: string;
     price: string;
     quantity: number;
     image: string;
@@ -66,7 +66,7 @@ export default function ProductPage() {
     );
     setCurrentProduct({
       id: "",
-      name: "",
+      productName: "",
       price: "",
       quantity: 1,
       image: "",
@@ -80,7 +80,7 @@ export default function ProductPage() {
   };
 
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    product.productName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,9 +111,12 @@ export default function ProductPage() {
               </label>
               <input
                 type="text"
-                value={currentProduct.name}
+                value={currentProduct.productName}
                 onChange={(e) =>
-                  setCurrentProduct({ ...currentProduct, name: e.target.value })
+                  setCurrentProduct({
+                    ...currentProduct,
+                    productName: e.target.value,
+                  })
                 }
                 className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Enter product name"
@@ -232,13 +235,13 @@ export default function ProductPage() {
                     {product.image && (
                       <img
                         src={product.image}
-                        alt={product.name}
+                        alt={product.productName}
                         className="w-16 h-16 object-cover rounded-lg border"
                       />
                     )}
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">
-                        {product.name}
+                        {product.productName}
                       </h3>
                       <p className="text-sm text-gray-500">${product.price}</p>
                       <p className="text-sm text-gray-500">

@@ -7,9 +7,9 @@ const RegisterPage = lazy(() => import("./public/register.tsx"));
 const UserDashboard = lazy(() => import("./public/userDashboard.tsx"));
 
 const Admin = lazy(() => import("./private/index.tsx"));
-// const AdminProduct = lazy(() => import("./private/product/product"));
-const ProductForm = lazy(() => import("./private/product/productForm.tsx"));
-const ProductTable = lazy(() => import("./private/product/productTable.tsx"));
+const AdminProduct = lazy(() => import("./private/product/adminProduct.tsx"));
+// const ProductForm = lazy(() => import("./private/product/productForm.tsx"));
+// const ProductTable = lazy(() => import("./private/product/productTable.tsx"));
 const AdminDashboard = lazy(
   () => import("./private/dashboard/adminDashboard.tsx")
 );
@@ -40,20 +40,30 @@ function App() {
           path: "/admin/product",
           element: (
             <Suspense>
-              <ProductTable />
+              <AdminProduct />
             </Suspense>
           ),
           errorElement: <>Error</>,
         },
-        {
-          path: "/admin/product/form",
-          element: (
-            <Suspense>
-              <ProductForm />
-            </Suspense>
-          ),
-          errorElement: <>Error</>,
-        },
+
+        // {
+        //   path: "/admin/product",
+        //   element: (
+        //     <Suspense>
+        //       <ProductTable />
+        //     </Suspense>
+        //   ),
+        //   errorElement: <>Error</>,
+        // },
+        // {
+        //   path: "/admin/product/form",
+        //   element: (
+        //     <Suspense>
+        //       <ProductForm />
+        //     </Suspense>
+        //   ),
+        //   errorElement: <>Error</>,
+        // },
         {
           path: "/admin-order",
           element: (

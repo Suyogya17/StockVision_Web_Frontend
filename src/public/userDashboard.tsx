@@ -1,5 +1,5 @@
 import { Card, CardContent } from "../pages/common/card";
-import Navbar from "../pages/common/header";
+import Navbar from "../pages/common/navbar";
 export default function userDashboard() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">

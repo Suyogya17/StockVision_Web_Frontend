@@ -1,6 +1,6 @@
 import { Bell, Menu, Search, Settings, User } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent } from "../common/card";
+import { Card, CardContent } from "./card";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);

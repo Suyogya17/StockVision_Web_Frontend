@@ -1,3 +1,4 @@
+import AdminNavBar from "../../pages/common/adminnavbar";
 import { Card, CardContent } from "../../pages/common/card";
 
 function adminDashboard() {
@@ -5,7 +6,7 @@ function adminDashboard() {
     <>
       <div className="h-screen flex flex-col bg-gray-50">
         {/* Navbar */}
-        {/* <Navbar /> */}
+        <AdminNavBar />
 
         {/* Dashboard Content */}
         <main className="flex-grow p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

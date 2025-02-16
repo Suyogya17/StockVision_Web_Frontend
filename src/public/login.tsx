@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useLogin } from "../public/query";
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const loginMutation = useLogin();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -14,15 +16,16 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login data:", formData);
-  };
-
-  const handleNavigateToRegister = () => {
-    navigate("/register");
-  };
-
-  const handleNavigateToForgetPassword = () => {
-    navigate("/forget-password");
+    loginMutation.mutate(formData, {
+      onSuccess: (data) => {
+        console.log("Login Success:", data);
+        localStorage.setItem("token", data.data.token);
+        navigate("/dashboard");
+      },
+      onError: (error) => {
+        console.error("Login Failed:", error);
+      },
+    });
   };
 
   return (
@@ -31,6 +34,13 @@ const LoginPage: React.FC = () => {
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Stock<span className="text-orange-600">Vision</span>
         </h2>
+
+        {loginMutation.isError && (
+          <div className="text-red-500 text-center mb-4">
+            Login failed. Please check your credentials.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Username Field */}
           <div>
@@ -51,7 +61,7 @@ const LoginPage: React.FC = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2  focus:outline-none text-gray-700"
+                className="w-full px-3 py-2 focus:outline-none text-gray-700"
                 placeholder="Enter your username"
               />
             </div>
@@ -93,21 +103,22 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loginMutation.isPending}
           >
-            Login
+            {loginMutation.isPending ? "Logging in..." : "Login"}
           </button>
         </form>
 
         {/* Links */}
         <div className="flex justify-between items-center mt-6 text-sm">
           <button
-            onClick={handleNavigateToForgetPassword}
+            onClick={() => navigate("/forget-password")}
             className="text-orange-600 hover:underline focus:outline-none"
           >
             Forgot Password?
           </button>
           <button
-            onClick={handleNavigateToRegister}
+            onClick={() => navigate("/register")}
             className="text-orange-600 hover:underline focus:outline-none"
           >
             Create an Account

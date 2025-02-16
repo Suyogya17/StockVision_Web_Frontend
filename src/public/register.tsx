@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRegister } from "../public/query"; // Import your useRegister hook
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +27,8 @@ const RegisterPage: React.FC = () => {
   const [profileImage, setProfileImage] = useState<any>(null);
   const [isImageSelected, setIsImageSelected] = useState(false);
   const navigate = useNavigate();
+
+  const { mutate } = useRegister(); // Call your custom mutation
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,8 +48,28 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    console.log("Registration data:", formData);
-    toast.success("Registration successful!");
+    // Prepare the data to send to the API
+    const requestBody = {
+      fName: formData.firstName,
+      lName: formData.lastName,
+      email: formData.email,
+      phoneNo: formData.phoneNumber,
+      address: formData.address,
+      username: formData.username,
+      password: formData.password,
+      image: profileImage, // Send the image file
+    };
+
+    // Call the mutate function to send data to the server
+    mutate(requestBody, {
+      onSuccess: () => {
+        toast.success("Registration successful!");
+        navigate("/dashboard"); // Redirect to login or homepage after successful registration
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Registration failed");
+      },
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

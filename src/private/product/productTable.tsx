@@ -1,4 +1,4 @@
-import { useGetList } from "./query";
+import { useGetList } from "./productQuery";
 
 interface Product {
   _id: string;
@@ -35,19 +35,19 @@ function ProductTable() {
         <tbody>
           {productList?.data && productList.data.length > 0 ? (
             productList.data.map((i: Product) => (
-              <tr key={i._id} className="border-b hover:bg-gray-100">
-                <td className="p-3">{i.productName}</td>
+              <tr key={i?._id} className="border-b hover:bg-gray-100">
+                <td className="p-3">{i?.productName}</td>
                 <td className="p-3 text-green-600 font-semibold">${i.price}</td>
                 <td className="p-3">
                   <img
-                    src={i.image}
-                    alt={i.productName}
+                    src={i?.image}
+                    alt={i?.productName}
                     className="w-16 h-16 object-cover rounded-md"
                   />
                 </td>
-                <td className="p-3 text-gray-600">{i.description}</td>
-                <td className="p-3 text-center font-medium">{i.quantity}</td>
-                <td className="p-3 capitalize">{i.type}</td>
+                <td className="p-3 text-gray-600">{i?.description}</td>
+                <td className="p-3 text-center font-medium">{i?.quantity}</td>
+                <td className="p-3 capitalize">{i?.type}</td>
               </tr>
             ))
           ) : (

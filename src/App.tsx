@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ToastContainer } from "react-toastify"; // Import ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 const LoginPage = lazy(() => import("./public/login.tsx"));
 const RegisterPage = lazy(() => import("./public/register.tsx"));
@@ -11,11 +13,10 @@ const UserOrder = lazy(() => import("./public/userOrder.tsx"));
 const Admin = lazy(() => import("./private/index.tsx"));
 const AdminProduct = lazy(() => import("./private/product/adminProduct.tsx"));
 const AdminOrder = lazy(() => import("./private/order/adminOrder.tsx"));
-// const ProductForm = lazy(() => import("./private/product/productForm.tsx"));
-// const ProductTable = lazy(() => import("./private/product/productTable.tsx"));
 const AdminDashboard = lazy(
   () => import("./private/dashboard/adminDashboard.tsx")
 );
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -56,25 +57,6 @@ function App() {
           ),
           errorElement: <>Error</>,
         },
-
-        // {
-        //   path: "/admin/product",
-        //   element: (
-        //     <Suspense>
-        //       <ProductTable />
-        //     </Suspense>
-        //   ),
-        //   errorElement: <>Error</>,
-        // },
-        // {
-        //   path: "/admin/product/form",
-        //   element: (
-        //     <Suspense>
-        //       <ProductForm />
-        //     </Suspense>
-        //   ),
-        //   errorElement: <>Error</>,
-        // },
       ],
     },
   ];
@@ -132,9 +114,11 @@ function App() {
   ];
 
   const isAdmin = false;
+
   return (
     <>
       <QueryClientProvider client={queryClient}>
+        <ToastContainer />
         <RouterProvider
           router={createBrowserRouter(isAdmin ? privateRouter : publicRouter)}
         />

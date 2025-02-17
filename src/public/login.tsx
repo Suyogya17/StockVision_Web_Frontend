@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useLogin } from "../public/query";
 
 const LoginPage: React.FC = () => {
@@ -20,10 +22,12 @@ const LoginPage: React.FC = () => {
       onSuccess: (data) => {
         console.log("Login Success:", data);
         localStorage.setItem("token", data.data.token);
+        toast.success("Login Sucessfull !");
         navigate("/dashboard");
       },
       onError: (error) => {
         console.error("Login Failed:", error);
+        toast.error("Login Failed. Please check your credentials.");
       },
     });
   };

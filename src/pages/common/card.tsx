@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 interface CardProps {
   children: ReactNode;
   className?: string;
+  onTap?: () => void;
 }
 
 export function Card({ children, className }: CardProps) {
@@ -16,8 +17,13 @@ export function Card({ children, className }: CardProps) {
 interface CardContentProps {
   children: ReactNode;
   className?: string;
+  onTap?: () => void;
 }
 
-export function CardContent({ children, className }: CardContentProps) {
-  return <div className={`p-4 ${className}`}>{children}</div>;
+export function CardContent({ children, className, onTap }: CardContentProps) {
+  return (
+    <div className={`p-4 ${className}`} onClick={onTap}>
+      {children}
+    </div>
+  );
 }

@@ -1,7 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import AdminNavBar from "../../pages/common/adminnavbar";
 import { Card, CardContent } from "../../pages/common/card";
 
 function adminDashboard() {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate("/admin/product"); // replace "/destination" with your actual route
+  };
   return (
     <>
       <div className="h-screen flex flex-col bg-gray-50">
@@ -20,10 +26,13 @@ function adminDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card
+            className="max-w-xs cursor-pointer hover:scale-105 hover:shadow-xl transition-all"
+            onTap={handleCardClick}
+          >
             <CardContent>
-              <h2 className="text-xl font-bold">Sales</h2>
-              <p className="text-gray-600">Total sales made this month.</p>
+              <h2 className="text-xl font-bold">Products</h2>
+              <p className="text-gray-600">Products that are for you.</p>
             </CardContent>
           </Card>
 

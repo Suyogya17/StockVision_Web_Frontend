@@ -41,3 +41,22 @@ export const useSaveProduct = () => {
       }),
   });
 };
+
+export const useDeleteProduct = () => {
+  return useMutation({
+    mutationKey: ["DELETE_PRODUCT"],
+    mutationFn: (productId: string) =>
+      axios.delete(`http://localhost:3000/api/product/${productId}`),
+  });
+};
+
+export const useUpdateProduct = () => {
+  return useMutation({
+    mutationKey: ["UPDATE_PRODUCT"],
+    mutationFn: (data: { formData: FormData; productId: string }) =>
+      axios.put(
+        `http://localhost:3000/api/product/updateProduct/${data.productId}`,
+        data.formData
+      ),
+  });
+};

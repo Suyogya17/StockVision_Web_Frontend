@@ -20,8 +20,8 @@ export default function userDashboard() {
 
         <Card>
           <CardContent>
-            <h2 className="text-xl font-bold">Sales</h2>
-            <p className="text-gray-600">Total sales made this month.</p>
+            <h2 className="text-xl font-bold">Product</h2>
+            <p className="text-gray-600">All products in the store.</p>
           </CardContent>
         </Card>
 

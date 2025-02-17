@@ -5,15 +5,17 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const LoginPage = lazy(() => import("./public/login.tsx"));
 const RegisterPage = lazy(() => import("./public/register.tsx"));
 const UserDashboard = lazy(() => import("./public/userDashboard.tsx"));
+const UserProduct = lazy(() => import("./public/userProduct.tsx"));
+const UserOrder = lazy(() => import("./public/userOrder.tsx"));
 
 const Admin = lazy(() => import("./private/index.tsx"));
 const AdminProduct = lazy(() => import("./private/product/adminProduct.tsx"));
+const AdminOrder = lazy(() => import("./private/order/adminOrder.tsx"));
 // const ProductForm = lazy(() => import("./private/product/productForm.tsx"));
 // const ProductTable = lazy(() => import("./private/product/productTable.tsx"));
 const AdminDashboard = lazy(
   () => import("./private/dashboard/adminDashboard.tsx")
 );
-const OrderPage = lazy(() => import("./private/order/order.tsx"));
 const queryClient = new QueryClient();
 
 function App() {
@@ -45,6 +47,15 @@ function App() {
           ),
           errorElement: <>Error</>,
         },
+        {
+          path: "/admin/order",
+          element: (
+            <Suspense>
+              <AdminOrder />
+            </Suspense>
+          ),
+          errorElement: <>Error</>,
+        },
 
         // {
         //   path: "/admin/product",
@@ -64,15 +75,6 @@ function App() {
         //   ),
         //   errorElement: <>Error</>,
         // },
-        {
-          path: "/admin-order",
-          element: (
-            <Suspense>
-              <OrderPage />
-            </Suspense>
-          ),
-          errorElement: <>Error</>,
-        },
       ],
     },
   ];
@@ -106,12 +108,30 @@ function App() {
       errorElement: <>Error</>,
     },
     {
+      path: "/product",
+      element: (
+        <Suspense>
+          <UserProduct />
+        </Suspense>
+      ),
+      errorElement: <>Error</>,
+    },
+    {
+      path: "/order",
+      element: (
+        <Suspense>
+          <UserOrder />
+        </Suspense>
+      ),
+      errorElement: <>Error</>,
+    },
+    {
       path: "*",
       element: <>Page not found</>,
     },
   ];
 
-  const isAdmin = true;
+  const isAdmin = false;
   return (
     <>
       <QueryClientProvider client={queryClient}>

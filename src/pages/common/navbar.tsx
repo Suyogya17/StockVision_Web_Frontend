@@ -1,4 +1,4 @@
-import { Bell, Menu, Search, Settings, User } from "lucide-react";
+import { Bell, Menu, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent } from "./card";
 
@@ -17,16 +17,6 @@ export default function Navbar() {
           <Menu className="h-6 w-6" />
         </button>
         <span className="text-xl font-bold">StockVision</span>
-      </div>
-
-      {/* Center: Search Bar */}
-      <div className="relative w-full max-w-lg">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
       </div>
 
       {/* Right Side: Icons */}

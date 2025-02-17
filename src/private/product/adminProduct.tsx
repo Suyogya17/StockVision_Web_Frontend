@@ -3,7 +3,12 @@ import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminNavBar from "../../pages/common/adminnavbar";
-import { useGetList, useSaveProduct } from "./productQuery";
+import {
+  useDeleteProduct,
+  useGetList,
+  useSaveProduct,
+  useUpdateProduct,
+} from "./productQuery";
 
 export default function AdminProduct() {
   const [products, setProducts] = useState<
@@ -19,6 +24,7 @@ export default function AdminProduct() {
   >([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentProduct, setCurrentProduct] = useState({
+    _id: "",
     productName: "",
     price: "",
     quantity: 1,
@@ -30,6 +36,8 @@ export default function AdminProduct() {
 
   const { data: fetchedProducts, refetch, isLoading, error } = useGetList();
   const saveProduct = useSaveProduct();
+  const deleteProduct = useDeleteProduct();
+  const updateProduct = useUpdateProduct();
 
   useEffect(() => {
     if (fetchedProducts?.data) {
@@ -37,7 +45,7 @@ export default function AdminProduct() {
     }
   }, [fetchedProducts]);
 
-  const addProduct = () => {
+  const addOrUpdateProduct = () => {
     if (!currentProduct.image) {
       toast.error("Please select an image", { position: "top-right" });
       return;
@@ -53,27 +61,94 @@ export default function AdminProduct() {
       formData.append("image", currentProduct.image);
     }
 
-    saveProduct.mutate(formData, {
-      onSuccess: () => {
-        toast.success("Product added successfully!", { position: "top-right" });
-        setCurrentProduct({
-          productName: "",
-          price: "",
-          quantity: 1,
-          image: "",
-          description: "",
-          type: "",
-        });
-        setPreviewImage(null);
-        refetch();
-      },
-      onError: (error) => {
-        toast.error(
-          (error as any)?.response?.data?.message || "Failed to add product",
-          { position: "top-right" }
-        );
-      },
+    if (currentProduct._id) {
+      updateProduct.mutate(
+        { formData, productId: currentProduct._id },
+        {
+          onSuccess: () => {
+            toast.success("Product updated successfully!", {
+              position: "top-right",
+            });
+            setCurrentProduct({
+              _id: "",
+              productName: "",
+              price: "",
+              quantity: 1,
+              image: "",
+              description: "",
+              type: "",
+            });
+            setPreviewImage(null);
+            refetch();
+          },
+          onError: (error) => {
+            toast.error(
+              (error as any)?.response?.data?.message ||
+                "Failed to update product",
+              { position: "top-right" }
+            );
+          },
+        }
+      );
+    } else {
+      saveProduct.mutate(formData, {
+        onSuccess: () => {
+          toast.success("Product added successfully!", {
+            position: "top-right",
+          });
+          setCurrentProduct({
+            _id: "",
+            productName: "",
+            price: "",
+            quantity: 1,
+            image: "",
+            description: "",
+            type: "",
+          });
+          setPreviewImage(null);
+          refetch();
+        },
+        onError: (error) => {
+          toast.error(
+            (error as any)?.response?.data?.message || "Failed to add product",
+            { position: "top-right" }
+          );
+        },
+      });
+    }
+  };
+
+  const handleEdit = (product: any) => {
+    setCurrentProduct({
+      _id: product._id,
+      productName: product.productName,
+      price: product.price,
+      quantity: product.quantity,
+      image: product.image,
+      description: product.description,
+      type: product.type,
     });
+    setPreviewImage(product.image);
+  };
+
+  const handleDelete = (productId: string) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      deleteProduct.mutate(productId, {
+        onSuccess: () => {
+          toast.success("Product deleted successfully!", {
+            position: "top-right",
+          });
+          refetch();
+        },
+        onError: (error) => {
+          toast.error(
+            (error as any)?.response?.data?.message ||
+              "Failed to delete product",
+            { position: "top-right" }
+          );
+        },
+      });
+    }
   };
 
   const filteredProducts = products.filter((product) =>
@@ -84,12 +159,12 @@ export default function AdminProduct() {
     <div className="bg-gray-100 min-h-screen">
       <AdminNavBar />
       <div className="container mx-auto p-6">
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-center">
-            Add New Product
+        <div className="bg-white shadow-xl rounded-lg p-6 mb-8">
+          <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
+            {currentProduct._id ? "Edit Product" : "Add New Product"}
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             <input
               type="text"
               placeholder="Product Name"
@@ -100,7 +175,7 @@ export default function AdminProduct() {
                   productName: e.target.value,
                 })
               }
-              className="border p-2 rounded w-full"
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="number"
@@ -109,7 +184,7 @@ export default function AdminProduct() {
               onChange={(e) =>
                 setCurrentProduct({ ...currentProduct, price: e.target.value })
               }
-              className="border p-2 rounded w-full"
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="number"
@@ -121,18 +196,27 @@ export default function AdminProduct() {
                   quantity: +e.target.value,
                 })
               }
-              className="border p-2 rounded w-full"
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               min="1"
             />
-            <input
-              type="text"
-              placeholder="Type"
+            <select
               value={currentProduct.type}
               onChange={(e) =>
                 setCurrentProduct({ ...currentProduct, type: e.target.value })
               }
-              className="border p-2 rounded w-full"
-            />
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="" className="font-bold">
+                Select Type
+              </option>
+              <option value="Sneaker">Sneaker</option>
+              <option value="Flip-flop">Flip-flop</option>
+              <option value="Boots">Boots</option>
+              <option value="Sandal">Sandal</option>
+              <option value="Brogues">Brogues</option>
+              <option value="Party">Party</option>
+              <option value="Oxford">Oxford</option>
+            </select>
             <textarea
               placeholder="Description"
               value={currentProduct.description}
@@ -142,7 +226,7 @@ export default function AdminProduct() {
                   description: e.target.value,
                 })
               }
-              className="border p-2 rounded w-full"
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             ></textarea>
             <input
               type="file"
@@ -156,7 +240,7 @@ export default function AdminProduct() {
                   setPreviewImage(URL.createObjectURL(e.target.files[0]));
                 }
               }}
-              className="border p-2 rounded w-full"
+              className="border p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -169,10 +253,10 @@ export default function AdminProduct() {
           )}
 
           <button
-            onClick={addProduct}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+            onClick={addOrUpdateProduct}
+            className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 w-full"
           >
-            Add Product
+            {currentProduct._id ? "Update Product" : "Add Product"}
           </button>
         </div>
 
@@ -181,14 +265,14 @@ export default function AdminProduct() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 w-full border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 pl-10"
+            className="px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 pl-10 text-lg"
             placeholder="Search products..."
           />
           <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
 
-        <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
-          <h2 className="text-2xl font-bold mb-4">Product List</h2>
+        <div className="bg-white shadow-xl rounded-lg p-6 mt-8">
+          <h2 className="text-3xl font-semibold mb-6">Product List</h2>
           {isLoading ? (
             <p className="text-gray-600 text-center">Loading products...</p>
           ) : error ? (
@@ -196,35 +280,50 @@ export default function AdminProduct() {
           ) : filteredProducts.length === 0 ? (
             <p className="text-gray-500 text-center">No products available.</p>
           ) : (
-            <table className="w-full border-collapse">
+            <table className="w-full table-auto border-collapse">
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="p-2 text-left">Product Name</th>
-                  <th className="p-2 text-left">Price</th>
-                  <th className="p-2 text-left">Image</th>
-                  <th className="p-2 text-left">Description</th>
-                  <th className="p-2 text-left">Quantity</th>
-                  <th className="p-2 text-left">Type</th>
+                  <th className="p-3 text-left font-semibold">Product Name</th>
+                  <th className="p-3 text-left font-semibold">Price</th>
+                  <th className="p-3 text-left font-semibold">Image</th>
+                  <th className="p-3 text-left font-semibold">Description</th>
+                  <th className="p-3 text-left font-semibold">Quantity</th>
+                  <th className="p-3 text-left font-semibold">Type</th>
+                  <th className="p-3 text-left font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.map((product) => (
-                  <tr key={product._id} className="border-b hover:bg-gray-100">
-                    <td className="p-2">{product.productName}</td>
-                    <td className="p-2 text-green-600 font-semibold">
-                      ${product.price}
-                    </td>
-                    <td className="p-2">
+                  <tr key={product._id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">{product.productName}</td>
+                    <td className="p-3 text-green-600">Rs {product.price}</td>
+                    <td className="p-3">
                       <img
-                        src={product.image ? product.image : "image"} // Use a default image if the product doesn't have one
-                        alt={product.productName}
-                        className="w-16 h-16 object-cover rounded-md"
+                        src={`http://localhost:3000/${product.image.replace(
+                          "public/",
+                          ""
+                        )}`}
+                        alt=".img"
+                        className="w-16 h-16 object-cover rounded-lg"
                       />
                     </td>
-
-                    <td className="p-2">{product.description}</td>
-                    <td className="p-2 text-center">{product.quantity}</td>
-                    <td className="p-2 capitalize">{product.type}</td>
+                    <td className="p-3">{product.description}</td>
+                    <td className="p-3">{product.quantity}</td>
+                    <td className="p-3">{product.type}</td>
+                    <td className="p-3 space-x-2">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

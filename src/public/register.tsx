@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useRegister } from "../public/query"; // Import your useRegister hook
+import { useRegister } from "../public/query";
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +28,7 @@ const RegisterPage: React.FC = () => {
   const [isImageSelected, setIsImageSelected] = useState(false);
   const navigate = useNavigate();
 
-  const { mutate } = useRegister(); // Call your custom mutation
+  const { mutate } = useRegister();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -22,8 +22,15 @@ const LoginPage: React.FC = () => {
       onSuccess: (data) => {
         console.log("Login Success:", data);
         localStorage.setItem("token", data.data.token);
+        localStorage.setItem("id", data.data.id);
         toast.success("Login Sucessfull !");
-        navigate("/dashboard");
+        console.log("User data");
+        var isAdmin = data.data.cred.isAdmin;
+        if (isAdmin == "true") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       },
       onError: (error) => {
         console.error("Login Failed:", error);

@@ -31,6 +31,7 @@ const UserProfile = () => {
   // Handle image selection
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log(file);
     if (file) {
       setSelectedImage(file); // Update the state with the selected image
     }
@@ -46,8 +47,10 @@ const UserProfile = () => {
 
     const formData = new FormData();
     if (selectedImage) {
-      formData.append("profilePicture", selectedImage); // Append the image file to the form data
+      formData.append("profilePicture", selectedImage);
+      console.log("Form Data: ", formData.get("profilePicture")); // Check if image is appended correctly
     }
+  
 
     // Append the user data
     formData.append("fName", fName || user.fName); // Use new name or current

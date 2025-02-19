@@ -19,7 +19,7 @@ const RegisterPage: React.FC = () => {
     lastName: "",
     email: "",
     address: "",
-    phoneNumber: "",
+    phoneNo: "",
     username: "",
     password: "",
   });
@@ -53,7 +53,7 @@ const RegisterPage: React.FC = () => {
       fName: formData.firstName,
       lName: formData.lastName,
       email: formData.email,
-      phoneNo: formData.phoneNumber,
+      phoneNo: formData.phoneNo,
       address: formData.address,
       username: formData.username,
       password: formData.password,
@@ -222,7 +222,7 @@ const RegisterPage: React.FC = () => {
                 <input
                   type="text"
                   name="phoneNumber"
-                  value={formData.phoneNumber}
+                  value={formData.phoneNo}
                   onChange={handleInputChange}
                   required
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400"

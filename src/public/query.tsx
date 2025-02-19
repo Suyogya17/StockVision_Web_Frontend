@@ -8,7 +8,7 @@ export const useRegister = () => {
       fName: string;
       lName: string;
       email: string;
-      image: any;
+      image: string;
       phoneNo: string;
       username: string;
       address: string;
@@ -21,10 +21,16 @@ export const useLogin = () => {
   return useMutation({
     mutationKey: ["LOGIN_USER"],
     mutationFn: (data: { username: string; password: string }) => {
+      // Clear old token before making the request
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
+
       return axios
         .post("http://localhost:3000/api/auth/login", data)
         .then((response) => {
-          localStorage.setItem("token", response.data.token); // Save token after login
+          // Save new token after successful login
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("id", response.data.cred._id); // Assuming 'cred._id' is the user ID
           return response;
         });
     },

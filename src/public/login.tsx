@@ -48,7 +48,7 @@ const LoginPage: React.FC = () => {
 
         {loginMutation.isError && (
           <div className="text-red-500 text-center mb-4">
-            Login failed. Please check your credentials.
+            Login failed. Please check your Username and Password.
           </div>
         )}
 

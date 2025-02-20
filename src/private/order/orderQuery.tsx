@@ -1,19 +1,19 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
+// ========== Get Orders ==============================
 export const useGetOrders = () => {
   return useQuery({
     queryKey: ["GET_ORDERS"],
     queryFn: async () => {
-      const response = await axios.get(
-        `http://localhost:3000/api/order/getAllOrder`
-      );
+      const response = await axios.get(`http://localhost:3000/api/order/getAllOrder`);
       console.log("API Response:", response.data);
       return response.data.data ?? [];
     },
   });
 };
 
+// ========== Place Order ==============================
 export const usePlaceOrder = () => {
   return useMutation({
     mutationKey: ["CREATE_ORDER"],
@@ -48,8 +48,7 @@ export const usePlaceOrder = () => {
   });
 };
 
-// ========= find order by user id ==============================
-
+// ========== Find Order by User ID ==============================
 export const useFindOrdersByCustomerId = (userId: string | null) => {
   const token = localStorage.getItem("token");
 
@@ -73,5 +72,57 @@ export const useFindOrdersByCustomerId = (userId: string | null) => {
   });
 };
 
-// ========= delete order by user id ==============================
+// ========== Delete Order by ID ==============================
+export const useDeleteOrder = () => {
+  const token = localStorage.getItem("token");
 
+  return useMutation({
+    mutationKey: ["DELETE_ORDER"],
+    mutationFn: async (orderId: string) => {
+      try {
+        if (!token) {
+          throw new Error("No token found. Please log in.");
+        }
+        const response = await axios.delete(
+          `http://localhost:3000/api/order/deleteOrder/${orderId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data;
+      } catch (error: unknown) {
+        // Type assertion to ensure error is of type Error
+    
+      }
+    },
+  });
+};
+
+
+// ========== Update Order ==============================
+export const useUpdateOrder = () => {
+  return useMutation({
+    mutationKey: ["UPDATE_ORDER"],
+    mutationFn: async ({ orderId, updatedData }: { orderId: string, updatedData: any }) => {
+      const response = await axios.put(
+        `http://localhost:3000/api/order/updateOrder/${orderId}`,
+        updatedData,
+       
+      );
+
+      if (!response.data.success) {
+        throw new Error("Failed to update order");
+      }
+
+      return response.data;
+    },
+    onError: (error: any) => {
+      console.error("Error updating order:", error);
+    },
+    onSuccess: () => {
+      console.log("Order updated successfully");
+    },
+  });
+};

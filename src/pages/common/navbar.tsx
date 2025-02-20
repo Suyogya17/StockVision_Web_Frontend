@@ -89,8 +89,8 @@ export default function Navbar() {
             >
               Product
             </a>
-            <a href="/order" className="px-4 py-2 rounded-lg hover:bg-gray-100">
-              Order
+            <a href="/orderhistory" className="px-4 py-2 rounded-lg hover:bg-gray-100">
+              Order history
             </a>
             <a href="/sales" className="px-4 py-2 rounded-lg hover:bg-gray-100">
               Sales

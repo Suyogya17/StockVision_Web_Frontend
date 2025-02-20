@@ -22,7 +22,7 @@ export const usePlaceOrder = () => {
         const token = localStorage.getItem("token");
 
         if (!token) {
-          console.error("🚨 No token found. Redirecting to login.");
+          console.error(" No token found. Redirecting to login.");
           throw new Error("No token found. Please log in.");
         }
 
@@ -33,7 +33,7 @@ export const usePlaceOrder = () => {
           orderData,
           {
             headers: {
-              Authorization: `Bearer ${token}`,  
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           }
@@ -48,13 +48,30 @@ export const usePlaceOrder = () => {
   });
 };
 
+// ========= find order by user id ==============================
 
-// Place Order Hook
-// const usePlaceOrder = () => {
-//   return useMutation({
-//     mutationFn: async (orderData: OrderPayload) => {
-//       const { data } = await axios.post("/api/orders/createOrder", orderData);
-//       return data;
-//     },
-//   });
-// };
+export const useFindOrdersByCustomerId = (userId: string | null) => {
+  const token = localStorage.getItem("token");
+
+  return useQuery({
+    queryKey: ["GET_USER_ORDER", userId],
+    queryFn: async () => {
+      if (!token) throw new Error("No token found in localStorage");
+      if (!userId) throw new Error("Customer ID is missing!");
+      const response = await axios.get(
+        `http://localhost:3000/api/order/getuserorders/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Orders fetched from API:", response.data);
+
+      return response.data;
+    },
+  });
+};
+
+// ========= delete order by user id ==============================
+

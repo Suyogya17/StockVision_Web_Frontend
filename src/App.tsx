@@ -148,6 +148,7 @@ import RegisterPage from "./public/register.tsx";
 import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
+import UserOrderHistory from "./public/orderhistory.tsx"
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -188,6 +189,10 @@ const router = createBrowserRouter([
   {
     path: "/order",
     element: <UserOrder />,
+  },
+  {
+    path: "/orderhistory",
+    element: <UserOrderHistory />,
   },
 ]);
 

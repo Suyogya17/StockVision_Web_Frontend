@@ -138,6 +138,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import QueryClient and QueryClientProvider
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ToastContainer } from "react-toastify"; // Import ToastContainer
 import "./App.css";
 import AdminDashboard from "./private/dashboard/adminDashboard.tsx";
 import AdminOrder from "./private/order/adminOrder.tsx";
@@ -195,6 +196,7 @@ function App() {
     <>
       {/* Wrap the RouterProvider with QueryClientProvider */}
       <QueryClientProvider client={queryClient}>
+        <ToastContainer />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </>

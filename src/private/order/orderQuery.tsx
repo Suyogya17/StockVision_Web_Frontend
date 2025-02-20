@@ -19,18 +19,35 @@ export const usePlaceOrder = () => {
     mutationKey: ["CREATE_ORDER"],
     mutationFn: async (orderData: any) => {
       try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.error("🚨 No token found. Redirecting to login.");
+          throw new Error("No token found. Please log in.");
+        }
+
+        console.log("📢 Token being sent in request:", token); // Debugging
+
         const response = await axios.post(
           "http://localhost:3000/api/order/createOrder",
-          orderData
+          orderData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,  
+              "Content-Type": "application/json",
+            },
+          }
         );
+
         return response.data;
       } catch (error) {
         console.error("Order creation failed:", error);
-        throw error; // Rethrow error for handling in the component
+        throw error;
       }
     },
   });
 };
+
 
 // Place Order Hook
 // const usePlaceOrder = () => {

@@ -50,7 +50,6 @@ const UserProfile = () => {
       formData.append("profilePicture", selectedImage);
       console.log("Form Data: ", formData.get("profilePicture")); // Check if image is appended correctly
     }
-  
 
     // Append the user data
     formData.append("fName", fName || user.fName); // Use new name or current
@@ -172,7 +171,7 @@ const UserProfile = () => {
               <label className="block text-sm mt-4">Phone Number</label>
               <input
                 type="text"
-                value={phoneNo || user.phoneNumber}
+                value={phoneNo || user.phoneNo}
                 onChange={(e) => setphoneNo(e.target.value)}
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
               />

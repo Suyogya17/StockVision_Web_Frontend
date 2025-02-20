@@ -1,160 +1,176 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { usePlaceOrder } from "../private/order/orderQuery";
 
 interface Product {
   _id: string;
   productName: string;
   description: string;
-  price: string;
+  price: number;
   image: string;
   stock: number;
 }
 
-interface OrderPayload {
-  customer: string;
-  products: { product: string; quantity: number }[];
-  totalPrice: number;
-  shippingAddress: string;
-  status: string;
-  paymentStatus: string;
-  orderDate: string;
-}
-
 export default function OrderPage() {
+  const navigate = useNavigate();
   const location = useLocation();
-  const selectedProduct = location.state?.product as Product | null;
-  const placeOrderMutation = usePlaceOrder();
-  const navigate = useNavigate(); // Initialize navigate hook
+  const product = location.state?.product as Product | null;
 
-  const [shippingAddress, setShippingAddress] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-  const customerId = "user123"; // Replace with actual logged-in user ID
+  const placeOrderMutation = usePlaceOrder();
 
-  // Get current date to display as order date
-  const currentDate = new Date().toLocaleDateString(); // Current date in "MM/DD/YYYY" format
+  if (!product) {
+    toast.error("No product selected!");
+    navigate("/product");
+    return null;
+  }
 
-  // Calculate the total price based on the quantity
-  const totalPrice = Number(selectedProduct?.price) * quantity;
+  const totalPrice = product.price * quantity;
 
   const handleOrder = () => {
-    if (!selectedProduct || !shippingAddress) {
-      toast.error("Please fill all fields.");
+    if (!isConfirmationOpen) {
+      setIsConfirmationOpen(true);
       return;
     }
 
-    if (quantity > selectedProduct.stock) {
-      toast.error(`Only ${selectedProduct.stock} units are available.`);
+    if (!shippingAddress) {
+      toast.error("Please enter a shipping address.");
       return;
     }
 
-    const orderData: OrderPayload = {
+    if (quantity > product.stock) {
+      toast.error(`Only ${product.stock} units are available.`);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const customerId = token
+      ? JSON.parse(atob(token.split(".")[1])).userId
+      : null;
+
+    if (!customerId) {
+      toast.error("User not authenticated.");
+      return;
+    }
+
+    const orderData = {
       customer: customerId,
-      products: [{ product: selectedProduct._id, quantity }],
-      totalPrice,
+      products: [
+        {
+          product: product._id,
+          quantity: String(quantity),
+          price: String(product.price),
+        },
+      ],
       shippingAddress,
       status: "pending",
       paymentStatus: "pending",
-      orderDate: currentDate,
+      totalPrice: String(totalPrice),
     };
-
-    console.log("Sending Order Data:", orderData); // Debugging before sending request
 
     placeOrderMutation.mutate(orderData, {
       onSuccess: () => {
-        toast.success("Order placed successfully!");
+        toast.success("Order placed successfully! 🎉");
         setShippingAddress("");
         setQuantity(1);
+        navigate("/product"); // Navigate back to the products page after order confirmation
       },
       onError: (error: any) => {
-        console.error("Order Placement Error:", error); // Log full error
-        toast.error(error.message || "Failed to place order.");
+        toast.error(error.response?.data?.message || "Failed to place order.");
       },
     });
-  };
 
-  const handleBack = () => {
-    navigate("/product"); // Navigate to the product page
+    setIsConfirmationOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-4">Place an Order</h1>
-      {selectedProduct && (
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
-          {/* Product Image */}
-          <img
-            src={`http://localhost:3000/${selectedProduct.image.replace(
-              "public/",
-              ""
-            )}`}
-            alt={selectedProduct.productName}
-            className="w-full h-64 object-cover rounded-md mb-4"
+    <div className="w-full max-w-3xl p-8 bg-white shadow-2xl rounded-lg mx-auto mt-10 sm:mt-16">
+      <h2 className="text-3xl font-semibold text-center mb-6">
+        Place Your Order
+      </h2>
+      <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
+        <img
+          src={`http://localhost:3000/${product.image.replace("public/", "")}`}
+          alt="Product"
+          className="w-48 h-48 object-cover rounded-lg border-4 border-gray-200 shadow-lg"
+        />
+        <div className="text-center md:text-left">
+          <h3 className="text-2xl font-medium text-gray-800">
+            {product.productName}
+          </h3>
+          <p className="text-lg text-gray-600">{product.description}</p>
+          <p className="text-lg font-bold text-green-600">Rs {product.price}</p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <div className="p-6 border-2 border-gray-200 rounded-xl shadow-sm">
+          <label className="block text-sm font-medium text-gray-700">
+            Quantity
+          </label>
+          <input
+            type="number"
+            min="1"
+            max={product.stock}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
 
-          {/* Product Name */}
-          <h2 className="text-xl font-semibold mb-2">
-            {selectedProduct.productName}
-          </h2>
+          <label className="block text-sm font-medium text-gray-700 mt-4">
+            Total Price
+          </label>
+          <p className="text-lg font-bold text-green-700">Rs {totalPrice}</p>
 
-          {/* Product Description */}
-          <p className="text-gray-600 mb-2">{selectedProduct.description}</p>
-
-          {/* Product Price */}
-          <p className="text-green-600 font-bold text-lg mb-4">
-            Rs {selectedProduct.price}
-          </p>
-
-          {/* Quantity Input */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700">Quantity:</label>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-              className="border p-2 w-20 rounded-md"
-              min={1}
-            />
-          </div>
-
-          {/* Display Total Price */}
-          <p className="text-lg font-semibold text-gray-700">
-            Total Price: Rs {totalPrice}
-          </p>
-
-          {/* Shipping Address Input */}
+          <label className="block text-sm font-medium text-gray-700 mt-4">
+            Shipping Address
+          </label>
           <input
             type="text"
-            className="border p-2 w-full rounded-md mt-4"
             value={shippingAddress}
             onChange={(e) => setShippingAddress(e.target.value)}
-            placeholder="Enter shipping address"
+            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            placeholder="Enter your shipping address"
           />
-
-          {/* Order Date */}
-          <p className="text-sm text-gray-500 mt-4">
-            Order Date: {currentDate}
-          </p>
-
-          {/* Place Order Button */}
-          <button
-            className="mt-4 bg-blue-600 text-white py-2 px-4  rounded-lg w-1/2"
-            onClick={handleOrder}
-          >
-            Place Order
-          </button>
-
-          {/* Back Button */}
-          <button
-            className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg w-1/2"
-            onClick={handleBack}
-          >
-            Back
-          </button>
         </div>
-      )}
+
+        {isConfirmationOpen ? (
+          <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-xl">
+            <p className="text-lg font-semibold">Confirm Your Order Details</p>
+            <p>
+              <strong>Quantity:</strong> {quantity}
+            </p>
+            <p>
+              <strong>Total Price:</strong> Rs {totalPrice}
+            </p>
+            <p>
+              <strong>Shipping Address:</strong> {shippingAddress}
+            </p>
+            <button
+              className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+              onClick={handleOrder}
+              disabled={placeOrderMutation.isPending}
+            >
+              {placeOrderMutation.isPending
+                ? "Processing..."
+                : "Confirm and Place Order"}
+            </button>
+          </div>
+        ) : (
+          <button
+            className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+            onClick={handleOrder}
+            disabled={placeOrderMutation.isPending}
+          >
+            {placeOrderMutation.isPending ? "Processing..." : "Place Order"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

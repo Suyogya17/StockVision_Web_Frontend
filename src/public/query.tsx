@@ -37,6 +37,8 @@ export const useLogin = () => {
   });
 };
 
+// ================================== Update user ================================
+
 export const useUserUpdate = () => {
   return useMutation({
     mutationKey: ["UPDATE_USER"],

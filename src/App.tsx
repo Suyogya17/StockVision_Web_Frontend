@@ -140,15 +140,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Imp
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify"; // Import ToastContainer
 import "./App.css";
+import AboutUs from "./pages/view/aboutus.tsx";
 import AdminDashboard from "./private/dashboard/adminDashboard.tsx";
 import AdminOrder from "./private/order/adminOrder.tsx";
 import Account from "./public/account.tsx";
 import Login from "./public/login.tsx";
+import UserOrderHistory from "./public/orderhistory.tsx";
+import Overview from "./public/overview.tsx";
 import RegisterPage from "./public/register.tsx";
 import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
-import UserOrderHistory from "./public/orderhistory.tsx"
+import UserSupport from "./public/usersupport.tsx";
+import AdminProduct from "./private/product/adminProduct.tsx";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -176,7 +180,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin/product",
-    element: <Login />,
+    element: <AdminProduct />,
   },
   {
     path: "/admin/order",
@@ -194,14 +198,33 @@ const router = createBrowserRouter([
     path: "/orderhistory",
     element: <UserOrderHistory />,
   },
+  {
+    path: "/overview",
+    element: <Overview />,
+  },
+  {
+    path: "/support",
+    element: <UserSupport />,
+  },
+  {
+    path: "/aboutus",
+    element: <AboutUs />,
+  },
+  {
+    path: "/support",
+    element: <UserSupport />,
+  },
 ]);
 
 function App() {
   return (
     <>
-      {/* Wrap the RouterProvider with QueryClientProvider */}
       <QueryClientProvider client={queryClient}>
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+        />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </>

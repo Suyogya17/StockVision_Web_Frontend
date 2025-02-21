@@ -105,9 +105,13 @@ export default function UserProduct() {
                   onChange={(e) => setSelectedType(e.target.value)}
                 >
                   <option value="">All Types</option>
-                  <option value="Shoes">Shoes</option>
-                  <option value="Clothing">Clothing</option>
-                  <option value="Accessories">Accessories</option>
+                  <option value="Shoe">Shoes</option>
+                  <option value="T-Shirt">T-shirt</option>
+                  <option value="CAp">Cap</option>
+                  <option value="Scocks">Scocks</option>
+                  <option value="Belt">Belt</option>
+                  <option value="Wallet">Wallet</option>
+                  <option value="Shirt">Shirt</option>
                 </select>
               </div>
             </div>

@@ -209,13 +209,13 @@ export default function AdminProduct() {
               <option value="" className="font-bold">
                 Select Type
               </option>
-              <option value="Sneaker">Sneaker</option>
-              <option value="Flip-flop">Flip-flop</option>
-              <option value="Boots">Boots</option>
-              <option value="Sandal">Sandal</option>
-              <option value="Brogues">Brogues</option>
-              <option value="Party">Party</option>
-              <option value="Oxford">Oxford</option>
+              <option value="Shoe">Shoes</option>
+              <option value="T-Shirt">T-shirt</option>
+              <option value="CAp">Cap</option>
+              <option value="Scocks">Scocks</option>
+              <option value="Belt">Belt</option>
+              <option value="Wallet">Wallet</option>
+              <option value="Shirt">Shirt</option>
             </select>
             <textarea
               placeholder="Description"

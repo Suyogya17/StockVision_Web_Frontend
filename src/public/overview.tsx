@@ -1,9 +1,4 @@
-import { useGetList } from "../private/product/productQuery";
-import {
-    useDeleteOrder,
-    useFindOrdersByCustomerId,
-    useUpdateOrder,
-  } from "../private/order/orderQuery";
+
   
  function Overview() {
   const stats = [

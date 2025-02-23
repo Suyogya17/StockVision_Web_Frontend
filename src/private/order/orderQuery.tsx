@@ -13,6 +13,17 @@ export const useGetOrders = () => {
   });
 };
 
+export const useGetReportOrders = () => {
+  return useQuery({
+    queryKey: ["GET_ORDERS"],
+    queryFn: async () => {
+      const response = await axios.get(`http://localhost:3000/api/order/getAllOrder`);
+      console.log("API Response:", response.data);
+      return response.data ?? [];
+    },
+  });
+};
+
 // ========== Place Order ==============================
 export const usePlaceOrder = () => {
   return useMutation({

@@ -57,6 +57,9 @@ export const useUserUpdate = () => {
   });
 };
 
+// ================================== Get user by id  ================================
+
+
 export const useGetUserProfile = () => {
   const token = localStorage.getItem("token");
 
@@ -76,6 +79,21 @@ export const useGetUserProfile = () => {
       );
       console.log("Token being passed to API:", token);
 
+      return response.data;
+    },
+  });
+};
+
+
+// ================================== get all user ================================
+
+export const useGetUser = () => {
+  return useQuery({
+    queryKey: ["GET_USER_LIST"],
+    queryFn: async () => {
+      const response = await axios.get(
+        "http://localhost:3000/api/auth/getAllUser"
+      );
       return response.data;
     },
   });

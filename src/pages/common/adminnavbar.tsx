@@ -6,7 +6,7 @@ export default function AdminNavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+    <nav className="bg-white shadow-md p-4 flex justify-between items-center relative">
       {/* Left Side: Burger Menu and Brand */}
       <div className="flex items-center gap-4">
         <button
@@ -43,44 +43,22 @@ export default function AdminNavBar() {
 
       {/* Dropdown Menu */}
       {menuOpen && (
-        <Card className="absolute top-16 left-4 w-64 z-50 h-[75vh] overflow-y">
-          <CardContent className="flex flex-col gap-2 p-4">
-            <a href="/admin" className="px-4 py-2 rounded-lg hover:bg-gray-100">
-              Dashboard
-            </a>
-            <a
-              href="/admin/product"
-              className="px-4 py-2 rounded-lg hover:bg-gray-100"
-            >
-              Product
-            </a>
-            <a
-              href="/admin/order"
-              className="px-4 py-2 rounded-lg hover:bg-gray-100"
-            >
-              Order
-            </a>
-            <a href="/sales" className="px-4 py-2 rounded-lg hover:bg-gray-100">
-              Sales
-            </a>
-            <a
-              href="/reports"
-              className="px-4 py-2 rounded-lg hover:bg-gray-100"
-            >
-              Report
-            </a>
-            <a
-              href="/about-us"
-              className="px-4 py-2 rounded-lg hover:bg-gray-100"
-            >
-              About Us
-            </a>
-            <a
-              href="/account"
-              className="px-4 py-2 rounded-lg hover:bg-gray-100"
-            >
-              Account
-            </a>
+        <Card className="absolute top-16 left-4 w-64 z-50 bg-white shadow-lg rounded-lg overflow-hidden">
+          <CardContent className="flex flex-col p-4">
+            {[
+              { name: "Dashboard", path: "/admin" },
+              { name: "Product", path: "/admin/product" },
+              { name: "Order", path: "/admin/order" },
+              { name: "Report", path: "/admin/report" },
+            ].map((item) => (
+              <a
+                key={item.path}
+                href={item.path}
+                className="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+              >
+                {item.name}
+              </a>
+            ))}
           </CardContent>
         </Card>
       )}

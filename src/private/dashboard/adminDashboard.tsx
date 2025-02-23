@@ -1,74 +1,117 @@
 import { useNavigate } from "react-router-dom";
 import AdminNavBar from "../../pages/common/adminnavbar";
-import { Card, CardContent } from "../../pages/common/card";
+import Footer from "../../pages/common/footer";
+import { useGetList } from "../../private/product/productQuery"; // Fetch products
 
-function adminDashboard() {
+export default function DashboardButtons() {
   const navigate = useNavigate();
+  const { data: products, isLoading: productsLoading } = useGetList();
 
-  const handleCardClick = () => {
-    navigate("/admin/product"); // replace "/destination" with your actual route
-  };
+  // Debugging the products data
+  console.log("Products data:", products);
+
+  const buttons = [
+    {
+      title: "Overview",
+      description: "Quick summary of your platform's performance.",
+      path: "/overview",
+    },
+    {
+      title: "Products",
+      description: "All products in the store.",
+      path: "/admin/product",
+    },
+    {
+      title: "Orders",
+      description: "New orders placed today.",
+      path: "/admin/order",
+    },
+    {
+      title: "Analytics",
+      description: "Key metrics and analytics overview.",
+      path: "/admin/report",
+    },
+    {
+      title: "Support",
+      description: "Tickets and inquiries.",
+      path: "/support",
+    },
+  ];
+
+  // Ensure products is an array
+  const productList = Array.isArray(products?.data) ? products.data : [];
+
   return (
-    <>
-      <div className="h-screen flex flex-col bg-gray-50">
-        {/* Navbar */}
-        <AdminNavBar />
+    <div className="min-h-screen bg-gray-100">
+      {/* Navbar */}
+      <AdminNavBar />
 
-        {/* Dashboard Content */}
-        <main className="flex-grow p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Example Cards */}
-          <Card>
-            <CardContent>
-              <h2 className="text-xl font-bold">Overview</h2>
-              <p className="text-gray-600">
-                Quick summary of your platform's performance.
-              </p>
-            </CardContent>
-          </Card>
+      {/* Main Container */}
+      <div className="max-w-6xl mx-auto py-10 px-4">
+        {/* Grid Layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {buttons.map((button, index) => (
+            <div
+              key={index}
+              onClick={() => navigate(button.path)}
+              className="w-full h-72 cursor-pointer bg-white p-6 rounded-2xl shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+            >
+              {/* Icon and Title */}
+              <div className="flex items-center mb-4">
+                <div className="mr-4 bg-gray-200 p-3 rounded-full"></div>
+                <h2 className="text-2xl font-semibold text-gray-800">
+                  {button.title}
+                </h2>
+              </div>
 
-          <Card
-            className="max-w-xs cursor-pointer hover:scale-105 hover:shadow-xl transition-all"
-            onTap={handleCardClick}
-          >
-            <CardContent>
-              <h2 className="text-xl font-bold">Products</h2>
-              <p className="text-gray-600">Products that are for you.</p>
-            </CardContent>
-          </Card>
+              {/* Description */}
+              <p className="text-gray-600">{button.description}</p>
+            </div>
+          ))}
+        </div>
 
-          <Card>
-            <CardContent>
-              <h2 className="text-xl font-bold">Users</h2>
-              <p className="text-gray-600">Active users on the platform.</p>
-            </CardContent>
-          </Card>
+        {/* Products Section */}
+        {!productsLoading && productList.length > 0 && (
+          <div className="mt-8 bg-white p-6 rounded-2xl shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800">Products Overview</h3>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {productList.map((product: any) => (
+                <div
+                  key={product.id}
+                  className="bg-gray-50 p-4 rounded-xl shadow-md border"
+                >
+                  {/* Product Image */}
+                  <img
+                    src={product.image} // Ensure your API returns an image URL
+                    alt={product.name}
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  
+                  {/* Product Name */}
+                  <h4 className="mt-3 text-lg font-semibold text-gray-800">
+                    {product.name}
+                  </h4>
 
-          <Card>
-            <CardContent>
-              <h2 className="text-xl font-bold">Orders</h2>
-              <p className="text-gray-600">New orders placed today.</p>
-            </CardContent>
-          </Card>
+                  {/* Product Price & Quantity */}
+                  <p className="text-gray-600 text-sm mt-1">Price: ${product.price}</p>
+                  <p className="text-gray-500 text-sm">Quantity Left: {product.quantity}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-          <Card>
-            <CardContent>
-              <h2 className="text-xl font-bold">Analytics</h2>
-              <p className="text-gray-600">
-                Key metrics and analytics overview.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent>
-              <h2 className="text-xl font-bold">Support</h2>
-              <p className="text-gray-600">Tickets and inquiries.</p>
-            </CardContent>
-          </Card>
-        </main>
+        {/* If No Products Available */}
+        {!productsLoading && productList.length === 0 && (
+          <div className="mt-8 bg-white p-6 rounded-2xl shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800">No Products Available</h3>
+            <p className="text-gray-500">There are no products available to display.</p>
+          </div>
+        )}
       </div>
-    </>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
-
-export default adminDashboard;

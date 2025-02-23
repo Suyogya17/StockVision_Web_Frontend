@@ -82,7 +82,10 @@ export default function DashboardButtons() {
                 >
                   {/* Product Image */}
                   <img
-                    src={product.image} // Ensure your API returns an image URL
+                    src={`http://localhost:3000/${product.image.replace(
+                      "public/",
+                      ""
+                    )}`}
                     alt={product.name}
                     className="w-full h-40 object-cover rounded-lg"
                   />
@@ -93,8 +96,8 @@ export default function DashboardButtons() {
                   </h4>
 
                   {/* Product Price & Quantity */}
-                  <p className="text-gray-600 text-sm mt-1">Price: ${product.price}</p>
-                  <p className="text-gray-500 text-sm">Quantity Left: {product.quantity}</p>
+                  <p className="text-gray-600 text-bold mt-1">Price: {product.price} Rs</p>
+                  <p className="text-gray-500 text-bold">Quantity Left: {product.quantity}</p>
                 </div>
               ))}
             </div>

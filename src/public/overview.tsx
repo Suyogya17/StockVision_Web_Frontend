@@ -1,3 +1,5 @@
+import AdminNavBar from "../pages/common/adminnavbar";
+import Footer from "../pages/common/footer";
 
   
  function Overview() {
@@ -8,7 +10,10 @@
   ];
 
   return (
-    <div className="p-6 space-y-6">
+  <div  className="h-screen flex flex-col bg-gray-50">
+    <AdminNavBar/>
+
+    <div className="h-screen p-6 space-y-6">
       <h1 className="text-3xl font-bold">Overview</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((stat, index) => (
@@ -21,6 +26,8 @@
           </div>
         ))}
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 }

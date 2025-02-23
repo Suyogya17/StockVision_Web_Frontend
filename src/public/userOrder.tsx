@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,7 +10,7 @@ interface Product {
   description: string;
   price: number;
   image: string;
-  stock: number;
+  quantity: number; // available stock
 }
 
 export default function OrderPage() {
@@ -21,6 +21,7 @@ export default function OrderPage() {
   const [quantity, setQuantity] = useState(1);
   const [shippingAddress, setShippingAddress] = useState("");
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [quantityError, setQuantityError] = useState<string>(""); // New state for quantity error message
 
   const placeOrderMutation = usePlaceOrder();
 
@@ -31,6 +32,21 @@ export default function OrderPage() {
   }
 
   const totalPrice = product.price * quantity;
+
+  // Update quantity error if quantity exceeds available stock
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = Number(e.target.value);
+    if (newQuantity < 1) {
+      setQuantity(1);
+      setQuantityError("");
+    } else if (newQuantity > product.quantity) {
+      setQuantity(product.quantity);
+      setQuantityError(`You cannot order more than ${product.quantity} units.`);
+    } else {
+      setQuantity(newQuantity);
+      setQuantityError("");
+    }
+  };
 
   const handleOrder = () => {
     if (!isConfirmationOpen) {
@@ -43,8 +59,8 @@ export default function OrderPage() {
       return;
     }
 
-    if (quantity > product.stock) {
-      toast.error(`Only ${product.stock} units are available.`);
+    if (quantity > product.quantity) {
+      toast.error(`Only ${product.quantity} units are available.`);
       return;
     }
 
@@ -116,11 +132,18 @@ export default function OrderPage() {
           <input
             type="number"
             min="1"
-            max={product.stock}
+            max={product.quantity}
             value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+            onChange={handleQuantityChange}
             className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
+          <p className="text-sm text-gray-600 mt-2">
+            <strong>{product.quantity}</strong> units available
+          </p>
+
+          {quantityError && (
+            <p className="text-sm text-red-600 mt-2">{quantityError}</p>
+          )}
 
           <label className="block text-sm font-medium text-gray-700 mt-4">
             Total Price

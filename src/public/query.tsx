@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useState } from "react";
 
 export const useRegister = () => {
   return useMutation({
@@ -97,4 +98,66 @@ export const useGetUser = () => {
       return response.data;
     },
   });
+};
+
+//  ============================= forgot password =====================================
+
+export const useRequestPasswordReset = () => {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const requestPasswordReset = async (email: string) => {
+    try {
+      setLoading(true);
+      setError('');
+      setMessage('');
+
+      const response = await axios.post('/api/customer/requestPasswordReset', { email });
+      setMessage(response.data.message); // Success message
+    } catch (err) {
+      setError('An error occurred while sending the reset email.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    message,
+    error,
+    requestPasswordReset,
+  };
+};
+
+
+// ================use reset password =====================
+
+export const useForgotPassword = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const forgotPassword = async (email: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setMessage(null);
+
+      // Send the reset password request to the backend
+      const response = await axios.post(
+        "http://localhost:3000/api/customer/requestPasswordReset",
+        { email }
+      );
+
+      // Assuming the response contains a success message
+      setMessage(response.data.message); // Set the success message from the response
+    } catch (err: any) {
+      setError("An error occurred while sending the reset email."); // Set the error message
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { forgotPassword, isLoading, error, message };
 };

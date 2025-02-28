@@ -83,6 +83,10 @@ const UserProfile = () => {
     navigate("/");
   }
 
+  function handleChangePassword() {
+    navigate("/forgetpassword");
+  }
+
   return (
     <div
       className={`${
@@ -247,7 +251,12 @@ const UserProfile = () => {
             <p className="text-gray-600 text-sm mb-4">
               Change password and manage login activity
             </p>
-            <button className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200">
+            <button
+              onClick={() => {
+                handleChangePassword();
+              }}
+              className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
+            >
               Change Password
             </button>
           </div>

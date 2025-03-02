@@ -26,9 +26,15 @@ interface OrderStatusData {
   value: number;
 }
 
+interface PaymentStatusData {
+  name: string;
+  value: number;
+}
+
 // Define the Order interface
 interface Order {
   status: string;
+  paymentStatus: string;
   id: string;
   date: string;
   totalPrice: number;
@@ -36,11 +42,14 @@ interface Order {
 
 export default function Report() {
   const { data: orders, isLoading: ordersLoading } = useGetReportOrders();
-  const { data: users, isLoading: usersLoading } = useGetList();
-  const { data: products, isLoading: productsLoading } = useGetUser();
+  const { data: users, isLoading: usersLoading } = useGetUser();
+  const { data: products, isLoading: productsLoading } = useGetList();
 
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [orderStatusData, setOrderStatusData] = useState<OrderStatusData[]>([]);
+  const [paymentStatusData, setPaymentStatusData] = useState<
+    PaymentStatusData[]
+  >([]);
 
   // Colors for the bar and pie charts
   const barColors = {
@@ -56,42 +65,60 @@ export default function Report() {
       console.log("Loading data...");
       return;
     }
-  
+
     console.log("Raw Orders Data:", orders);
     console.log("Raw Users Data:", users);
     console.log("Raw Products Data:", products);
-  
+
     // Check if the necessary data exists and handle both cases for users and products
     const ordersData = Array.isArray(orders?.data) ? orders.data : [];
-    const usersData = Array.isArray(users?.data) ? users.data : users;  // Handle case if users is already an array
-    const productsData = Array.isArray(products?.data) ? products.data : products;  // Handle case if products is already an array
-  
+    const usersData = Array.isArray(users?.data) ? users.data : users; // Handle case if users is already an array
+    const productsData = Array.isArray(products?.data)
+      ? products.data
+      : products; // Handle case if products is already an array
+
     if (!ordersData || !usersData || !productsData) {
-      console.error("Data missing: Orders, Users, or Products are empty or not in the correct format.");
+      console.error(
+        "Data missing: Orders, Users, or Products are empty or not in the correct format."
+      );
       return;
     }
-  
+
     // Proceed with setting the chart data
     setChartData([
       { name: "Orders", count: ordersData.length },
       { name: "Users", count: usersData.length },
       { name: "Products", count: productsData.length },
     ]);
-  
+
     // Set order status data
     const statusCount: Record<string, number> = {};
+    const paymentStatusCount: Record<string, number> = {};
+
     ordersData.forEach((order: Order) => {
+      // Count order statuses
       statusCount[order.status] = (statusCount[order.status] || 0) + 1;
+
+      // Count payment statuses
+      paymentStatusCount[order.paymentStatus] =
+        (paymentStatusCount[order.paymentStatus] || 0) + 1;
     });
-  
+
     setOrderStatusData(
       Object.keys(statusCount).map((status) => ({
         name: status,
         value: statusCount[status],
       }))
     );
+
+    setPaymentStatusData(
+      Object.keys(paymentStatusCount).map((paymentStatus) => ({
+        name: paymentStatus,
+        value: paymentStatusCount[paymentStatus],
+      }))
+    );
   }, [orders, users, products, ordersLoading, usersLoading, productsLoading]);
-  
+
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <h2 className="text-2xl font-semibold mb-6 text-center">
@@ -124,7 +151,65 @@ export default function Report() {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Chart for Order Status */}
+      {/* Bar Chart for Order Status Count */}
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+        <h3 className="text-lg font-medium text-gray-800 mb-4 text-center">
+          Order Status Count
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={orderStatusData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+              {orderStatusData.map((entry) => (
+                <Cell
+                  key={entry.name}
+                  fill={
+                    pieColors[orderStatusData.indexOf(entry) % pieColors.length]
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Bar Chart for Payment Status Count */}
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+        <h3 className="text-lg font-medium text-gray-800 mb-4 text-center">
+          Payment Status Count
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={paymentStatusData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+              {paymentStatusData.map((entry) => (
+                <Cell
+                  key={entry.name}
+                  fill={
+                    pieColors[
+                      paymentStatusData.indexOf(entry) % pieColors.length
+                    ]
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Pie Chart for Order Status Breakdown */}
       <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
         <h3 className="text-lg font-medium text-gray-800 mb-4 text-center">
           Order Status Breakdown
@@ -140,6 +225,34 @@ export default function Report() {
               outerRadius={100}
             >
               {orderStatusData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={pieColors[index % pieColors.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Pie Chart for Payment Status Breakdown */}
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+        <h3 className="text-lg font-medium text-gray-800 mb-4 text-center">
+          Payment Status Breakdown
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={paymentStatusData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+            >
+              {paymentStatusData.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={pieColors[index % pieColors.length]}

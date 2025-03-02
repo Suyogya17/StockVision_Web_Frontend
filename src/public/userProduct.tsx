@@ -20,7 +20,7 @@ export default function UserProduct() {
 
   // State for filters
   const [searchQuery, setSearchQuery] = useState("");
-  const [minPrice, setMinPrice] = useState(1000);
+  const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(50000);
   const [selectedType, setSelectedType] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -107,7 +107,7 @@ export default function UserProduct() {
                   <option value="">All Types</option>
                   <option value="Shoe">Shoes</option>
                   <option value="T-Shirt">T-shirt</option>
-                  <option value="CAp">Cap</option>
+                  <option value="Cap">Cap</option>
                   <option value="Scocks">Scocks</option>
                   <option value="Belt">Belt</option>
                   <option value="Wallet">Wallet</option>

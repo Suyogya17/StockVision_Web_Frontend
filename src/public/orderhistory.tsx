@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { FaTrashAlt } from "react-icons/fa"; // Importing Font Awesome trash icon
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Footer from "../pages/common/footer";
 import Navbar from "../pages/common/navbar";
-import { useDeleteOrder, useFindOrdersByCustomerId } from "../private/order/orderQuery";
-import { FaTrashAlt } from "react-icons/fa"; // Importing Font Awesome trash icon
+import {
+  useDeleteOrder,
+  useFindOrdersByCustomerId,
+} from "../private/order/orderQuery";
 
 interface Order {
   _id: string;
@@ -41,7 +44,8 @@ export default function OrderHistory() {
     }
   }, []);
 
-  const { data, isLoading, isError, refetch } = useFindOrdersByCustomerId(userId);
+  const { data, isLoading, isError, refetch } =
+    useFindOrdersByCustomerId(userId);
   const { mutate: deleteOrder } = useDeleteOrder();
 
   const orders = data?.data ?? [];
@@ -100,7 +104,10 @@ export default function OrderHistory() {
 
         <ul className="space-y-6">
           {orders.map((order: Order) => (
-            <li key={order._id} className="p-4 border rounded-lg shadow-lg bg-gray-50">
+            <li
+              key={order._id}
+              className="p-4 border rounded-lg shadow-lg bg-gray-50"
+            >
               <div className="flex justify-between items-center">
                 <p className="text-xl font-semibold text-blue-600">
                   Order #{order._id}
@@ -110,7 +117,10 @@ export default function OrderHistory() {
                     onClick={() => handleDelete(order._id)}
                     className="px-2 py-2 text-white rounded-lg hover:bg-red-600"
                   >
-                    <FaTrashAlt className="text-red-500 hover:text-red-700" size={20} />
+                    <FaTrashAlt
+                      className="text-red-500 hover:text-red-700"
+                      size={20}
+                    />
                   </button>
                 </div>
               </div>
@@ -120,6 +130,7 @@ export default function OrderHistory() {
               <p className="text-sm text-gray-600">
                 Shipping: {order.shippingAddress}
               </p>
+              <p className="text-sm text-gray-600">Status: {order.status}</p>
               <p className="text-sm text-gray-600">
                 Payment Status: {order.paymentStatus}
               </p>

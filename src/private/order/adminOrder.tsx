@@ -1,5 +1,5 @@
 import AdminNavBar from "../../pages/common/adminnavbar";
-import { useGetOrders } from "./orderQuery";
+import { useGetOrders, useUpdateOrder } from "./orderQuery";
 
 interface Order {
   _id: string;
@@ -14,56 +14,192 @@ interface Order {
   totalPrice: number;
   orderDate: string;
   status: string;
+  paymentStatus: string;
   shippingAddress: string;
 }
 
 export default function AdminOrder() {
-  const { data: orders = [], isLoading, isError, error } = useGetOrders(); 
+  const {
+    data: orders = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetOrders();
+  const { mutate: updateOrderStatus } = useUpdateOrder();
 
   if (isLoading) {
-    return <p className="text-gray-600 text-lg animate-pulse">Loading orders...</p>;
+    return (
+      <p className="text-gray-600 text-lg animate-pulse">Loading orders...</p>
+    );
   }
 
   if (isError) {
-    return <p className="text-red-600 text-lg">Error fetching orders: {(error as Error).message}</p>;
+    return (
+      <p className="text-red-600 text-lg">
+        Error fetching orders: {(error as Error).message}
+      </p>
+    );
   }
+
+  // Sort the orders by orderDate in descending order (most recent first)
+  const sortedOrders = orders.sort((a: Order, b: Order) => {
+    return new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
+  });
+
+  const handleStatusChange = (orderId: string, status: string) => {
+    if (
+      status !== "completed" &&
+      status !== "pending" &&
+      status !== "shipped" &&
+      status !== "cancelled"
+    ) {
+      console.error("Invalid status");
+      return;
+    }
+
+    updateOrderStatus(
+      { orderId, updatedData: { status } },
+      {
+        onSuccess: () => {
+          refetch(); // Refetch orders to update the list automatically
+        },
+        onError: (error: unknown) => {
+          console.error("Error updating order status:", error);
+        },
+      }
+    );
+  };
+
+  const handlePaymentStatusChange = (
+    orderId: string,
+    paymentStatus: string
+  ) => {
+    if (
+      paymentStatus !== "pending" &&
+      paymentStatus !== "completed" &&
+      paymentStatus !== "failed"
+    ) {
+      console.error("Invalid payment status");
+      return;
+    }
+
+    updateOrderStatus(
+      { orderId, updatedData: { paymentStatus } },
+      {
+        onSuccess: () => {
+          refetch(); // Refetch orders to update the list automatically
+        },
+        onError: (error: unknown) => {
+          console.error("Error updating payment status:", error);
+        },
+      }
+    );
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
       <AdminNavBar />
       <div className="container mx-auto p-6">
         <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-semibold text-center">Customers Orders</h2>
-          {orders.length === 0 ? (
+          <h2 className="text-2xl font-semibold text-center">
+            Customers Orders
+          </h2>
+          {sortedOrders.length === 0 ? (
             <p className="text-gray-500 text-center">No orders found.</p>
           ) : (
             <ul className="space-y-6">
-              {orders.map((order: Order) => (
-                <li key={order._id} className="border rounded-lg p-6 shadow-sm bg-white">
-                  <p>User ID: <strong>{order.customer._id}</strong></p>
-                  <p>Username: <strong>{order.customer.username}</strong></p>
-                  <p>Total Price: <strong>Rs {order.totalPrice}</strong></p>
-                  <p>Date: <strong>{new Date(order.orderDate).toLocaleDateString()}</strong></p>
-                  <p>Status: <strong>{order.status}</strong></p>
-                  <p>Shipping Address: <strong>{order.shippingAddress}</strong></p>
+              {sortedOrders.map((order: Order) => (
+                <li
+                  key={order._id}
+                  className="border rounded-lg p-6 shadow-sm bg-white"
+                >
+                  <p>
+                    User ID: <strong>{order.customer._id}</strong>
+                  </p>
+                  <p>
+                    Username: <strong>{order.customer.username}</strong>
+                  </p>
+                  <p>
+                    Total Price: <strong>Rs {order.totalPrice}</strong>
+                  </p>
+                  <p>
+                    Date:{" "}
+                    <strong>
+                      {new Date(order.orderDate).toLocaleDateString()}
+                    </strong>
+                  </p>
+                  <p>
+                    Status: <strong>{order.status}</strong>
+                  </p>
+                  <p>
+                    Shipping Address: <strong>{order.shippingAddress}</strong>
+                  </p>
+
+                  {/* Dropdown for Order Status */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Order Status
+                    </label>
+                    <select
+                      value={order.status}
+                      onChange={(e) =>
+                        handleStatusChange(order._id, e.target.value)
+                      }
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  {/* Dropdown for Payment Status */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Payment Status
+                    </label>
+                    <select
+                      value={order.paymentStatus}
+                      onChange={(e) =>
+                        handlePaymentStatusChange(order._id, e.target.value)
+                      }
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                  </div>
 
                   {/* Displaying Products in the Order */}
                   <div className="mt-4 space-y-4">
                     {order.products.map((orderProduct, index) => {
                       const product = orderProduct.product;
                       return (
-                        <div key={index} className="flex items-center gap-4 border p-4 rounded-lg">
+                        <div
+                          key={index}
+                          className="flex items-center gap-4 border p-4 rounded-lg"
+                        >
                           {/* Display the product image if available */}
                           {product.image && (
                             <img
-                              src={`http://localhost:3000/${product.image.replace("public/", "")}`}
+                              src={`http://localhost:3000/${product.image.replace(
+                                "public/",
+                                ""
+                              )}`}
                               alt={product.productName}
                               className="w-20 h-20 object-cover rounded-lg shadow-sm"
                             />
                           )}
                           <div>
-                            <h3 className="text-lg font-semibold">{product.productName}</h3>
-                            <p className="text-sm text-gray-500">Quantity: {orderProduct.quantity}</p>
+                            <h3 className="text-lg font-semibold">
+                              {product.productName}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              Quantity: {orderProduct.quantity}
+                            </p>
                           </div>
                         </div>
                       );

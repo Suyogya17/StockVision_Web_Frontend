@@ -211,7 +211,7 @@ export default function AdminProduct() {
               </option>
               <option value="Shoe">Shoes</option>
               <option value="T-Shirt">T-shirt</option>
-              <option value="CAp">Cap</option>
+              <option value="Cap">Cap</option>
               <option value="Scocks">Scocks</option>
               <option value="Belt">Belt</option>
               <option value="Wallet">Wallet</option>

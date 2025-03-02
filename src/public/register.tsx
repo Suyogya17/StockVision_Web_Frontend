@@ -221,7 +221,7 @@ const RegisterPage: React.FC = () => {
                 </span>
                 <input
                   type="text"
-                  name="phoneNumber"
+                  name="phoneNo"
                   value={formData.phoneNo}
                   onChange={handleInputChange}
                   required
@@ -281,6 +281,7 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white py-3 px-4 rounded-lg hover:bg-gradient-to-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={handleNavigateToLogin}
             >
               Register
             </button>

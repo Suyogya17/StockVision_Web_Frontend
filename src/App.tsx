@@ -8,6 +8,7 @@ import AdminDashboard from "./private/dashboard/adminDashboard.tsx";
 import AdminOrder from "./private/order/adminOrder.tsx";
 import AdminProduct from "./private/product/adminProduct.tsx";
 import Account from "./public/account.tsx";
+import ForgetPassword from "./public/forgotpassword.tsx";
 import Login from "./public/login.tsx";
 import UserOrderHistory from "./public/orderhistory.tsx";
 import Overview from "./public/overview.tsx";
@@ -16,7 +17,6 @@ import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
 import UserSupport from "./public/usersupport.tsx";
-import ForgetPassword from "./public/forgotpassword.tsx";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -53,10 +53,6 @@ const router = createBrowserRouter([
   {
     path: "/admin/report",
     element: <Report />,
-  },
-  {
-    path: "/admin/order",
-    element: <AdminOrder />,
   },
   {
     path: "/product",

@@ -23,13 +23,13 @@ const ForgotPasswordPage = () => {
     }
 
     // Call forgotPassword function
-    await forgotPassword(email); 
+    await forgotPassword(email);
 
     // Check for success or error messages
     if (message) {
-      toast.success(message);  // Display success message
+      toast.success(message); // Display success message
     } else if (error) {
-      toast.error(error);  // Display error message
+      toast.error(error); // Display error message
       setIsErrorVisible(true);
     }
   };

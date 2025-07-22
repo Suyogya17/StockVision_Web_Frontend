@@ -115,27 +115,30 @@ export const useDeleteOrder = () => {
 // ========== Update Order ==============================
 export const useUpdateOrder = () => {
   return useMutation({
-    mutationKey: ["UPDATE_ORDER"],
-    mutationFn: async ({ orderId, updatedData }: { orderId: string, updatedData: any }) => {
+    mutationKey: ["UPDATE_ORDER_STATUS"],
+    mutationFn: async ({
+      orderId,
+      updatedData,
+    }: {
+      orderId: string;
+      updatedData: any;
+    }) => {
       const response = await axios.put(
-        `http://localhost:3000/api/order/updateOrder/${orderId}`,
-        updatedData,
-       
+        "http://localhost:3000/api/order/updateStatus",
+        { orderId, updatedData }
       );
-      
 
       if (!response.data.success) {
-        throw new Error("Failed to update order");
+        throw new Error("Failed to update order status");
       }
 
       return response.data;
     },
-    onError: (error: any) => {
-      console.error("Error updating order:", error);
+    onError: (error) => {
+      console.error("Update failed:", error);
     },
     onSuccess: () => {
-      console.log("Order updated successfully");
+      console.log("Status updated successfully");
     },
-    
   });
 };

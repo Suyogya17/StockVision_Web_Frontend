@@ -6,9 +6,9 @@ interface Order {
   customer: {
     _id: string;
     username: string;
-  };
+  } | null;
   products: {
-    product: { productName: string; image?: string };
+    product: { productName: string; image?: string } | null;
     quantity: number;
   }[];
   totalPrice: number;
@@ -42,30 +42,21 @@ export default function AdminOrder() {
     );
   }
 
-  // Sort the orders by orderDate in descending order (most recent first)
-  const sortedOrders = orders.sort((a: Order, b: Order) => {
-    return new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
-  });
+  const sortedOrders = orders
+    .filter((order: Order) => order.customer !== null) // skip orders with no customer
+    .sort((a: Order, b: Order) => {
+      return new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
+    });
 
   const handleStatusChange = (orderId: string, status: string) => {
-    if (
-      status !== "completed" &&
-      status !== "pending" &&
-      status !== "shipped" &&
-      status !== "cancelled"
-    ) {
-      console.error("Invalid status");
-      return;
-    }
-
     updateOrderStatus(
       { orderId, updatedData: { status } },
       {
         onSuccess: () => {
-          refetch(); // Refetch orders to update the list automatically
+          refetch();
         },
-        onError: (error: unknown) => {
-          console.error("Error updating order status:", error);
+        onError: (error) => {
+          console.error("Status update error:", error);
         },
       }
     );
@@ -75,23 +66,14 @@ export default function AdminOrder() {
     orderId: string,
     paymentStatus: string
   ) => {
-    if (
-      paymentStatus !== "pending" &&
-      paymentStatus !== "completed" &&
-      paymentStatus !== "failed"
-    ) {
-      console.error("Invalid payment status");
-      return;
-    }
-
     updateOrderStatus(
       { orderId, updatedData: { paymentStatus } },
       {
         onSuccess: () => {
-          refetch(); // Refetch orders to update the list automatically
+          refetch();
         },
-        onError: (error: unknown) => {
-          console.error("Error updating payment status:", error);
+        onError: (error) => {
+          console.error("Payment status update error:", error);
         },
       }
     );
@@ -115,10 +97,11 @@ export default function AdminOrder() {
                   className="border rounded-lg p-6 shadow-sm bg-white"
                 >
                   <p>
-                    User ID: <strong>{order.customer._id}</strong>
+                    User ID: <strong>{order.customer?._id || "Unknown"}</strong>
                   </p>
                   <p>
-                    Username: <strong>{order.customer.username}</strong>
+                    Username:{" "}
+                    <strong>{order.customer?.username || "Unknown"}</strong>
                   </p>
                   <p>
                     Total Price: <strong>Rs {order.totalPrice}</strong>
@@ -182,8 +165,7 @@ export default function AdminOrder() {
                           key={index}
                           className="flex items-center gap-4 border p-4 rounded-lg"
                         >
-                          {/* Display the product image if available */}
-                          {product.image && (
+                          {product?.image && (
                             <img
                               src={`http://localhost:3000/${product.image.replace(
                                 "public/",
@@ -195,7 +177,7 @@ export default function AdminOrder() {
                           )}
                           <div>
                             <h3 className="text-lg font-semibold">
-                              {product.productName}
+                              {product?.productName || "Product removed"}
                             </h3>
                             <p className="text-sm text-gray-500">
                               Quantity: {orderProduct.quantity}

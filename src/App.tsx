@@ -17,7 +17,7 @@ import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
 import UserSupport from "./public/usersupport.tsx";
-
+import Otp from "./public/OTPPage.tsx";
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
@@ -25,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
+  },
+  {
+    path: "/otp",
+    element: <Otp />,
   },
   {
     path: "/register",

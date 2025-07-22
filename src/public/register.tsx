@@ -26,13 +26,41 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [profileImage, setProfileImage] = useState<any>(null);
   const [isImageSelected, setIsImageSelected] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
   const navigate = useNavigate();
 
   const { mutate } = useRegister();
 
+  const evaluatePasswordStrength = (password: string): string => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    switch (score) {
+      case 0:
+      case 1:
+        return "Weak";
+      case 2:
+        return "Fair";
+      case 3:
+        return "Good";
+      case 4:
+        return "Strong";
+      default:
+        return "";
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    if (name === "password") {
+      const strength = evaluatePasswordStrength(value);
+      setPasswordStrength(strength);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -48,7 +76,6 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    // Prepare the data to send to the API
     const requestBody = {
       fName: formData.firstName,
       lName: formData.lastName,
@@ -57,20 +84,23 @@ const RegisterPage: React.FC = () => {
       address: formData.address,
       username: formData.username,
       password: formData.password,
-      image: profileImage, // Send the image file
+      image: profileImage,
     };
 
-    // Call the mutate function to send data to the server
-    mutate(requestBody, {
-      onSuccess: () => {
-        toast.success("Registration successful!");
-        navigate("/dashboard"); // Redirect to login or homepage after successful registration
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || "Registration failed");
-      },
-    });
-  };
+  mutate(requestBody, {
+    onSuccess: () => {
+      // ✅ Save email in localStorage for OTP verification
+      localStorage.setItem("userEmail", formData.email);
+
+      toast.success("Registration successful!");
+      navigate("/otp");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Registration failed");
+    },
+  });
+};
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -135,6 +165,7 @@ const RegisterPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* First Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 First Name
@@ -145,13 +176,12 @@ const RegisterPage: React.FC = () => {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 required
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  formData.firstName ? "border-blue-500" : "border-gray-300"
-                } focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400`}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                 placeholder="Enter your first name"
               />
             </div>
 
+            {/* Last Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Last Name
@@ -162,13 +192,12 @@ const RegisterPage: React.FC = () => {
                 value={formData.lastName}
                 onChange={handleInputChange}
                 required
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  formData.lastName ? "border-blue-500" : "border-gray-300"
-                } focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400`}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                 placeholder="Enter your last name"
               />
             </div>
 
+            {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
@@ -183,12 +212,13 @@ const RegisterPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                   placeholder="Enter your email"
                 />
               </div>
             </div>
 
+            {/* Address */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Address
@@ -203,14 +233,13 @@ const RegisterPage: React.FC = () => {
                   value={formData.address}
                   onChange={handleInputChange}
                   required
-                  className={`w-full pl-10 px-4 py-3 rounded-lg border ${
-                    formData.address ? "border-blue-500" : "border-gray-300"
-                  } focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400`}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                   placeholder="Enter your address"
                 />
               </div>
             </div>
 
+            {/* Phone Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Phone Number
@@ -225,12 +254,13 @@ const RegisterPage: React.FC = () => {
                   value={formData.phoneNo}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                   placeholder="Enter your phone number"
                 />
               </div>
             </div>
 
+            {/* Username */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Username
@@ -245,12 +275,13 @@ const RegisterPage: React.FC = () => {
                   value={formData.username}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                   placeholder="Enter your username"
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
@@ -265,7 +296,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 focus:outline-none focus:ring-0 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+                  className="w-full px-4 py-3 focus:outline-none focus:border-blue-500"
                   placeholder="Enter your password"
                 />
                 <button
@@ -276,12 +307,27 @@ const RegisterPage: React.FC = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
+              {formData.password && (
+                <p
+                  className={`mt-1 text-sm font-medium ${
+                    passwordStrength === "Weak"
+                      ? "text-red-600"
+                      : passwordStrength === "Fair"
+                      ? "text-yellow-600"
+                      : passwordStrength === "Good"
+                      ? "text-blue-600"
+                      : "text-green-600"
+                  }`}
+                >
+                  Password Strength: {passwordStrength}
+                </p>
+              )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white py-3 px-4 rounded-lg hover:bg-gradient-to-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleNavigateToLogin}
             >
               Register
             </button>

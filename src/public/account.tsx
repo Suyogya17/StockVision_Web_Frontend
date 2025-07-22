@@ -1,46 +1,47 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; // Import toast from react-toastify
-import "react-toastify/dist/ReactToastify.css"; // Import toast styles
-import { useGetUserProfile, useUserUpdate } from "./query"; // Import API call hook
+import { toast } from "react-toastify";
+import { useGetUserProfile, useUserUpdate } from "./query";
 
 const UserProfile = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null); // For image preview and upload
-  const [fName, setFName] = useState<string>(""); // To track first name
-  const [lName, setLName] = useState<string>(""); // To track last name
-  const [username, setUsername] = useState<string>(""); // To track username
-  const [email, setEmail] = useState<string>(""); // To track email
-  const [phoneNo, setphoneNo] = useState<string>(""); // To track phone number
-  const [address, setAddress] = useState<string>(""); // To track address
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState<boolean>(false); // To track confirmation state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [fName, setFName] = useState("");
+  const [lName, setLName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNo, setphoneNo] = useState("");
+  const [address, setAddress] = useState("");
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-  const { data: user, isLoading, error } = useGetUserProfile(); // Get user profile with auto-fetching
-  console.log(user); // Check the user object
+  const { data: user, isLoading, error } = useGetUserProfile();
+
+  // useEffect(() => {
+  //   // Check if error has a 'response' property (e.g., AxiosError)
+  //   if ((error as any)?.response?.status === 401) {
+  //     toast.error("Session expired. Please login again.");
+  //     localStorage.removeItem("token");
+  //     navigate("/");
+  //   }
+  // }, [error, navigate]);
 
   const {
     mutate: updateUser,
     isPending: isUpdating,
     error: updateError,
-  } = useUserUpdate(); // Hook for updating profile
+  } = useUserUpdate();
 
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">Error: {error.message}</p>;
+  if (!user) return <p>No user data available.</p>;
 
-  // Handle image selection
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file);
-    if (file) {
-      setSelectedImage(file); // Update the state with the selected image
-    }
+    if (file) setSelectedImage(file);
   };
 
-  // Handle profile update
   const handleUpdateProfile = () => {
     if (!isConfirmationOpen) {
-      // Open confirmation modal
       setIsConfirmationOpen(true);
       return;
     }
@@ -48,43 +49,35 @@ const UserProfile = () => {
     const formData = new FormData();
     if (selectedImage) {
       formData.append("profilePicture", selectedImage);
-      console.log("Form Data: ", formData.get("profilePicture")); // Check if image is appended correctly
     }
-
-    // Append the user data
-    formData.append("fName", fName || user.fName); // Use new name or current
-    formData.append("lName", lName || user.lName); // Use new name or current
-    formData.append("username", username || user.username); // Use new username or current
-    formData.append("email", email || user.email); // Use new email or current
-    formData.append("phoneNumber", phoneNo || user.phoneNo); // Use new phone number or current
-    formData.append("address", address || user.address); // Use new address or current
+    formData.append("fName", fName || user.fName);
+    formData.append("lName", lName || user.lName);
+    formData.append("username", username || user.username);
+    formData.append("email", email || user.email);
+    formData.append("phoneNo", phoneNo || user.phoneNo);
+    formData.append("address", address || user.address);
 
     updateUser({
       formData: formData,
-      customerId: user._id, // Assuming user._id is the unique identifier for the user
+      customerId: user._id,
     });
 
-    // Close confirmation modal after update
     setIsConfirmationOpen(false);
-
-    // Show toast message after successful update
     toast.success("Profile updated successfully!");
   };
 
-  // Handle confirmation modal closing without update
-  const handleCancelUpdate = () => {
-    setIsConfirmationOpen(false);
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    navigate("/");
   };
 
-  function handleLogOut() {
-    localStorage.removeItem("userToken"); // Example: remove token
-    sessionStorage.removeItem("userToken"); // Example: remove session storage token if applicable
-
-    navigate("/");
-  }
-
-  function handleChangePassword() {
+  const handleChangePassword = () => {
     navigate("/forgetpassword");
+  };
+
+  function handleCancelUpdate(): void {
+    setIsConfirmationOpen(false);
   }
 
   return (
@@ -104,8 +97,10 @@ const UserProfile = () => {
           <img
             src={
               selectedImage
-                ? URL.createObjectURL(selectedImage) // Preview selected image
-                : `http://localhost:3000/uploads/${user.image}`
+                ? URL.createObjectURL(selectedImage)
+                : user?.image
+                ? `http://localhost:3000/uploads/${user.image}`
+                : "/default-avatar.png" // fallback image or placeholder
             }
             alt="User Avatar"
             className="w-36 h-36 rounded-full border-4 border-gray-300 shadow-lg"

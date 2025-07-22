@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
 
+// ======================= REGISTER ==========================
 export const useRegister = () => {
   return useMutation({
     mutationKey: ["REGISTER_USER"],
@@ -18,76 +19,88 @@ export const useRegister = () => {
   });
 };
 
+// ======================= LOGIN ==========================
 export const useLogin = () => {
   return useMutation({
     mutationKey: ["LOGIN_USER"],
-    mutationFn: (data: { username: string; password: string }) => {
-      // Clear old token before making the request
+    mutationFn: (data: { email: string; password: string }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("id");
+      localStorage.removeItem("email");
 
       return axios
         .post("http://localhost:3000/api/auth/login", data)
         .then((response) => {
-          // Save new token after successful login
           localStorage.setItem("token", response.data.token);
-          localStorage.setItem("id", response.data.cred._id); // Assuming 'cred._id' is the user ID
+          localStorage.setItem("id", response.data.user._id);
+          localStorage.setItem("email", response.data.user.email);
           return response;
         });
     },
   });
 };
 
-// ================================== Update user ================================
-
-export const useUserUpdate = () => {
+// ======================= VERIFY OTP ==========================
+export const useVerifyOTP = () => {
   return useMutation({
-    mutationKey: ["UPDATE_USER"],
-    mutationFn: (data: { formData: FormData; customerId: string }) => {
-      const token = localStorage.getItem("token"); // Get token from storage
-      return axios.put(
-        `http://localhost:3000/api/auth/updateUser/${data.customerId}`,
-        data.formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Send token in headers
-          },
-        }
+    mutationKey: ["VERIFY_OTP"],
+    mutationFn: async (data: { email: string; otp: string }) => {
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/verify-otp",
+        data
       );
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("email", data.email);
+      return response.data;
     },
   });
 };
 
-// ================================== Get user by id  ================================
-
-
-export const useGetUserProfile = () => {
-  const token = localStorage.getItem("token");
-
-  return useQuery({
-    queryKey: ["GET_USER_PROFILE"],
-    queryFn: async () => {
-      if (!token) {
-        throw new Error("No token found in localStorage");
-      }
-      const response = await axios.get(
-        `http://localhost:3000/api/auth/userfindbyid`,
+// ======================= UPDATE USER ==========================
+export const useUserUpdate = () => {
+  return useMutation({
+    mutationKey: ["UPDATE_USER"],
+    mutationFn: (data: { formData: FormData; customerId: string }) => {
+      const token = localStorage.getItem("token");
+      return axios.put(
+        `http://localhost:3000/api/auth/updateUser/${data.customerId}`,
+        data.formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      console.log("Token being passed to API:", token);
+    },
+  });
+};
 
+// ======================= GET USER PROFILE ==========================
+export const useGetUserProfile = () => {
+  return useQuery({
+    queryKey: ["GET_USER_PROFILE"],
+    enabled: !!localStorage.getItem("token"), // only run if token exists
+    queryFn: async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found in localStorage");
+      }
+
+      const response = await axios.get(
+        "http://localhost:3000/api/auth/userfindbyid",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     },
   });
 };
 
-
-// ================================== get all user ================================
-
+// ======================= GET ALL USERS ==========================
 export const useGetUser = () => {
   return useQuery({
     queryKey: ["GET_USER_LIST"],
@@ -100,38 +113,6 @@ export const useGetUser = () => {
   });
 };
 
-//  ============================= forgot password =====================================
-
-export const useRequestPasswordReset = () => {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
-  const requestPasswordReset = async (email: string) => {
-    try {
-      setLoading(true);
-      setError('');
-      setMessage('');
-
-      const response = await axios.post('/api/customer/requestPasswordReset', { email });
-      setMessage(response.data.message); // Success message
-    } catch (err) {
-      setError('An error occurred while sending the reset email.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    loading,
-    message,
-    error,
-    requestPasswordReset,
-  };
-};
-
-
-// ================use reset password =====================
 
 export const useForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -144,16 +125,14 @@ export const useForgotPassword = () => {
       setError(null);
       setMessage(null);
 
-      // Send the reset password request to the backend
       const response = await axios.post(
-        "http://localhost:3000/api/customer/requestPasswordReset",
+        "http://localhost:3000/api/auth/request-reset",
         { email }
       );
 
-      // Assuming the response contains a success message
-      setMessage(response.data.message); // Set the success message from the response
-    } catch (err: any) {
-      setError("An error occurred while sending the reset email."); // Set the error message
+      setMessage(response.data.message);
+    } catch (err) {
+      setError("An error occurred while sending the reset email.");
     } finally {
       setIsLoading(false);
     }
@@ -161,4 +140,3 @@ export const useForgotPassword = () => {
 
   return { forgotPassword, isLoading, error, message };
 };
-

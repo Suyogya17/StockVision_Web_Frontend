@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useLogin } from "../public/query";
 
 const LoginPage: React.FC = () => {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const loginMutation = useLogin();
@@ -18,25 +18,35 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate(formData, {
-      onSuccess: (data) => {
-        console.log("Login Success:", data);
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("id", data.data.id);
-        toast.success("Login Sucessfull !");
-        console.log("User data");
-        var isAdmin = data.data.cred.isAdmin;
-        if (isAdmin == "true") {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
-      },
-      onError: (error) => {
-        console.error("Login Failed:", error);
-        toast.error("Login Failed. Please check your credentials.");
-      },
-    });
+
+    loginMutation.mutate(
+      { email: formData.email, password: formData.password },
+      {
+        onSuccess: (res) => {
+          const { token, user } = res.data;
+
+          localStorage.setItem("token", token);
+          localStorage.setItem("id", user._id);
+
+          if (!user.isVerified) {
+            localStorage.setItem("userEmail", user.email);
+            toast.info("Please verify OTP first.");
+            navigate("/otp");
+          } else {
+            toast.success("Login Successful!");
+            if (user.isAdmin) {
+              navigate("/admin");
+            } else {
+              navigate("/dashboard");
+            }
+          }
+        },
+        onError: (error) => {
+          console.error("Login Failed:", error);
+          toast.error("Login Failed. Please check your credentials.");
+        },
+      }
+    );
   };
 
   return (
@@ -48,37 +58,34 @@ const LoginPage: React.FC = () => {
 
         {loginMutation.isError && (
           <div className="text-red-500 text-center mb-4">
-            Login failed. Please check your Username and Password.
+            Login failed. Please check your Email and Password.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username Field */}
+          {/* Email */}
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Username
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
             </label>
             <div className="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
               <span className="px-3 text-gray-500">
                 <FaUser />
               </span>
               <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 focus:outline-none text-gray-700"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
               />
             </div>
           </div>
 
-          {/* Password Field */}
+          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -110,7 +117,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Login Button */}
           <button
             type="submit"
             className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Imp
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify"; // Import ToastContainer
 import "./App.css";
+import UnlockRedirectPage from "./public/UnlockRedirectPage";
 import AboutUs from "./pages/view/aboutus.tsx";
 import Report from "./pages/view/report.tsx";
 import AdminDashboard from "./private/dashboard/adminDashboard.tsx";
@@ -11,13 +12,13 @@ import Account from "./public/account.tsx";
 import ForgetPassword from "./public/forgotpassword.tsx";
 import Login from "./public/login.tsx";
 import UserOrderHistory from "./public/orderhistory.tsx";
+import Otp from "./public/OTPPage.tsx";
 import Overview from "./public/overview.tsx";
 import RegisterPage from "./public/register.tsx";
 import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
 import UserSupport from "./public/usersupport.tsx";
-import Otp from "./public/OTPPage.tsx";
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
@@ -37,6 +38,11 @@ const router = createBrowserRouter([
   {
     path: "/account",
     element: <Account />,
+  },
+
+  {
+    path: "/unlock-account",
+    element: <UnlockRedirectPage />,
   },
   {
     path: "/dashboard",

@@ -48,7 +48,7 @@ const UserProfile = () => {
 
     const formData = new FormData();
     if (selectedImage) {
-      formData.append("profilePicture", selectedImage);
+      formData.append("image", selectedImage);
     }
     formData.append("fName", fName || user.fName);
     formData.append("lName", lName || user.lName);
@@ -99,7 +99,7 @@ const UserProfile = () => {
               selectedImage
                 ? URL.createObjectURL(selectedImage)
                 : user?.image
-                ? `http://localhost:3000/uploads/${user.image}`
+                ? `http://localhost:3000${user.image}`
                 : "/default-avatar.png" // fallback image or placeholder
             }
             alt="User Avatar"

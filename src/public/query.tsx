@@ -80,9 +80,13 @@ export const useUserUpdate = () => {
 export const useGetUserProfile = () => {
   return useQuery({
     queryKey: ["GET_USER_PROFILE"],
-    enabled: !!localStorage.getItem("token"), // only run if token exists
+    enabled: !!localStorage.getItem("token"),
     queryFn: async () => {
       const token = localStorage.getItem("token");
+
+      // ✅ Debug print the token being sent
+      console.log("TOKEN BEING SENT:", token);
+
       if (!token) {
         throw new Error("No token found in localStorage");
       }
@@ -95,10 +99,12 @@ export const useGetUserProfile = () => {
           },
         }
       );
-      return response.data;
+
+      return response.data.user;
     },
   });
 };
+
 
 // ======================= GET ALL USERS ==========================
 export const useGetUser = () => {
@@ -140,3 +146,4 @@ export const useForgotPassword = () => {
 
   return { forgotPassword, isLoading, error, message };
 };
+

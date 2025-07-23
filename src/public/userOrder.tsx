@@ -10,7 +10,7 @@ interface Product {
   description: string;
   price: number;
   image: string;
-  quantity: number; // available stock
+  quantity: number;
 }
 
 export default function OrderPage() {
@@ -21,7 +21,7 @@ export default function OrderPage() {
   const [quantity, setQuantity] = useState(1);
   const [shippingAddress, setShippingAddress] = useState("");
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [quantityError, setQuantityError] = useState<string>(""); // New state for quantity error message
+  const [quantityError, setQuantityError] = useState<string>("");
 
   const placeOrderMutation = usePlaceOrder();
 
@@ -33,7 +33,6 @@ export default function OrderPage() {
 
   const totalPrice = product.price * quantity;
 
-  // Update quantity error if quantity exceeds available stock
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = Number(e.target.value);
     if (newQuantity < 1) {
@@ -66,7 +65,7 @@ export default function OrderPage() {
 
     const token = localStorage.getItem("token");
     const customerId = token
-      ? JSON.parse(atob(token.split(".")[1])).userId
+      ? JSON.parse(atob(token.split(".")[1])).id
       : null;
 
     if (!customerId) {
@@ -75,26 +74,26 @@ export default function OrderPage() {
     }
 
     const orderData = {
-      customer: customerId,
+      
       products: [
         {
           product: product._id,
-          quantity: String(quantity),
-          price: String(product.price),
+          quantity: quantity, // ✅ number
         },
       ],
       shippingAddress,
       status: "pending",
       paymentStatus: "pending",
-      totalPrice: String(totalPrice),
+      totalPrice: totalPrice, // ✅ number
     };
+    console.log("Sending Order Data:", orderData);
 
     placeOrderMutation.mutate(orderData, {
       onSuccess: () => {
         toast.success("Order placed successfully! 🎉");
         setShippingAddress("");
         setQuantity(1);
-        navigate("/product"); // Navigate back to the products page after order confirmation
+        navigate("/product");
       },
       onError: (error: any) => {
         toast.error(error.response?.data?.message || "Failed to place order.");

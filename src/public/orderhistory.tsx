@@ -11,9 +11,9 @@ import {
 
 interface Order {
   _id: string;
-  customer: Array<{ username: { username: string } }>;
+  customer: { username: string }; // ✅ FIXED
   products: Array<{
-    product: { _id: string; productName: string; price: string; image: string };
+    product: { _id: string; productName: string; price: number; image: string };
     quantity: number;
   }>;
   shippingAddress: string;
@@ -33,7 +33,7 @@ export default function OrderHistory() {
     if (token) {
       try {
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
-        setCustomerId(decodedToken.userId);
+        setCustomerId(decodedToken.id);
         setUsername(decodedToken.username);
       } catch (error) {
         console.error("Failed to decode token:", error);

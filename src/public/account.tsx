@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetUserProfile, useUserUpdate } from "./query";
@@ -73,7 +73,7 @@ const UserProfile = () => {
   };
 
   const handleChangePassword = () => {
-    navigate("/forgetpassword");
+    navigate("/forget-password");
   };
 
   function handleCancelUpdate(): void {

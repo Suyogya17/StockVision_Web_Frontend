@@ -119,31 +119,18 @@ export const useGetUser = () => {
   });
 };
 
+// ======== forget password =========
 
 export const useForgotPassword = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
-  const forgotPassword = async (email: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      setMessage(null);
-
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/request-reset",
-        { email }
-      );
-
-      setMessage(response.data.message);
-    } catch (err) {
-      setError("An error occurred while sending the reset email.");
-    } finally {
-      setIsLoading(false);
-    }
+  return {
+    forgotPassword: async (email: string) => {
+      const res = await axios.post("http://localhost:3000/api/auth/forgot-password", { email });
+      return res.data;
+    },
+    isLoading: false,
+    error: null,
+    message: null,
   };
-
-  return { forgotPassword, isLoading, error, message };
 };
+
 

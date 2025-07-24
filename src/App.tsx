@@ -19,6 +19,7 @@ import UserDashboard from "./public/userDashboard.tsx";
 import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
 import UserSupport from "./public/usersupport.tsx";
+import ResetPassword from "./public/restpassword.tsx"
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
@@ -93,9 +94,13 @@ const router = createBrowserRouter([
     element: <UserSupport />,
   },
   {
-    path: "/forgetpassword",
+    path: "/forget-password",
     element: <ForgetPassword />,
   },
+  {
+  path: "/reset-password/:token",
+  element: <ResetPassword />,
+},
 ]);
 
 function App() {

@@ -97,7 +97,7 @@ export default function DashboardButtons() {
                       ""
                     )}`}
                     alt={product.productName} // Use correct property
-                    className="w-full h-40 object-cover rounded-lg"
+                    className="w-full h-60 object-cover rounded-lg"
                   />
 
                   {/* Product Name */}

@@ -124,7 +124,18 @@ export const useGetUser = () => {
 export const useForgotPassword = () => {
   return {
     forgotPassword: async (email: string) => {
-      const res = await axios.post("https://localhost:3000/api/auth/forgot-password", { email });
+      const token = localStorage.getItem("token");
+
+      const res = await axios.post(
+        "https://localhost:3000/api/auth/forgot-password",
+        { email },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Send token
+          },
+        }
+      );
+
       return res.data;
     },
     isLoading: false,
@@ -132,5 +143,6 @@ export const useForgotPassword = () => {
     message: null,
   };
 };
+
 
 

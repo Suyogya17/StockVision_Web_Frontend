@@ -18,7 +18,7 @@ const UnlockRedirectPage = () => {
     const unlockAccount = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/auth/unlock-account?email=${encodeURIComponent(
+          `https://localhost:3000/api/auth/unlock-account?email=${encodeURIComponent(
             email
           )}`
         );

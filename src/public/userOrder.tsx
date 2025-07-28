@@ -110,7 +110,7 @@ export default function OrderPage() {
       </h2>
       <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
         <img
-          src={`http://localhost:3000/${product.image.replace("public/", "")}`}
+          src={`https://localhost:3000/${product.image.replace("public/", "")}`}
           alt="Product"
           className="w-48 h-48 object-cover rounded-lg border-4 border-gray-200 shadow-lg"
         />

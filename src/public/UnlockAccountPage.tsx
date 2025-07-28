@@ -18,7 +18,7 @@ const UnlockAccountPage = () => {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:3000/api/auth/unlock", { email });
+      await axios.post("https://localhost:3000/api/auth/unlock", { email });
       toast.success("Account unlocked successfully!");
       navigate("/login");
     } catch (err: any) {

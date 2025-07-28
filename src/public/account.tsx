@@ -99,7 +99,7 @@ const UserProfile = () => {
               selectedImage
                 ? URL.createObjectURL(selectedImage)
                 : user?.image
-                ? `http://localhost:3000${user.image}`
+                ? `https://localhost:3000${user.image}`
                 : "/default-avatar.png" // fallback image or placeholder
             }
             alt="User Avatar"

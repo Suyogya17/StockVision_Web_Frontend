@@ -125,7 +125,7 @@ export default function UserProduct() {
               className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
               <img
-                src={`http://localhost:3000/${product.image.replace(
+                src={`https://localhost:3000/${product.image.replace(
                   "public/",
                   ""
                 )}`}

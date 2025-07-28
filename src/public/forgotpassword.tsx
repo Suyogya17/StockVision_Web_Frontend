@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { toast } from "react-toastify"; // Import toast for user feedback
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useForgotPassword } from "./query";
+import { useForgotPassword } from "./query"; // Your custom React Query hook
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
-  const { forgotPassword, isLoading, error, message } = useForgotPassword(); // Check message/error for feedback
-  const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const { forgotPassword, isLoading } = useForgotPassword();
 
-  // Handle email input change
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
-  // Handle submit form
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -22,15 +23,24 @@ const ForgotPasswordPage = () => {
       return;
     }
 
-    // Call forgotPassword function
-    await forgotPassword(email);
+    if (!isValidEmail(email)) {
+      toast.error("Please enter a valid email address!");
+      return;
+    }
 
-    // Check for success or error messages
-    if (message) {
-      toast.success(message); // Display success message
-    } else if (error) {
-      toast.error(error); // Display error message
-      setIsErrorVisible(true);
+    try {
+      const res = await forgotPassword(email); // <- returns success or error from backend
+
+      if (res?.success) {
+        toast.success("Reset link sent successfully!", {
+          className: "bg-green-100 text-green-800 font-semibold",
+        });
+        setEmailSent(true);
+      } else {
+        toast.error(res?.message || "No account found with this email");
+      }
+    } catch (err: any) {
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -41,38 +51,37 @@ const ForgotPasswordPage = () => {
           Forgot Password
         </h2>
 
-        <form onSubmit={handleSubmit}>
-          {/* Email Input */}
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={handleEmailChange}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
-              placeholder="Enter your email"
-            />
-          </div>
+        {emailSent ? (
+          <p className="text-green-600 text-center mb-4">
+            If this email exists in our system, a reset link has been sent.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="email" className="block text-sm">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={handleEmailChange}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg"
+                placeholder="Enter your email"
+              />
+            </div>
 
-          {/* Error message */}
-          {isErrorVisible && (
-            <p className="text-red-500 text-sm mb-4">{error}</p>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Sending..." : "Send Reset Link"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isLoading ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

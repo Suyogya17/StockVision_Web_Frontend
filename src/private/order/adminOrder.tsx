@@ -167,7 +167,7 @@ export default function AdminOrder() {
                         >
                           {product?.image && (
                             <img
-                              src={`http://localhost:3000/${product.image.replace(
+                              src={`https://localhost:3000/${product.image.replace(
                                 "public/",
                                 ""
                               )}`}

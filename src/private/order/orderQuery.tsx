@@ -6,7 +6,7 @@ export const useGetOrders = () => {
   return useQuery({
     queryKey: ["GET_ORDERS"],
     queryFn: async () => {
-      const response = await axios.get(`http://localhost:3000/api/order/getAllOrder`);
+      const response = await axios.get(`https://localhost:3000/api/order/getAllOrder`);
       console.log("API Response:", response.data);
       return response.data.data ?? [];
     },
@@ -17,7 +17,7 @@ export const useGetReportOrders = () => {
   return useQuery({
     queryKey: ["GET_ORDERS"],
     queryFn: async () => {
-      const response = await axios.get(`http://localhost:3000/api/order/getAllOrder`);
+      const response = await axios.get(`https://localhost:3000/api/order/getAllOrder`);
       console.log("API Response:", response.data);
       return response.data ?? [];
     },
@@ -40,7 +40,7 @@ export const usePlaceOrder = () => {
         console.log("📢 Token being sent in request:", token); // Debugging
 
         const response = await axios.post(
-          "http://localhost:3000/api/order/createOrder",
+          "https://localhost:3000/api/order/createOrder",
           orderData,
           {
             headers: {
@@ -69,7 +69,7 @@ export const useFindOrdersByCustomerId = (userId: string | null) => {
       if (!token) throw new Error("No token found in localStorage");
       if (!userId) throw new Error("Customer ID is missing!");
       const response = await axios.get(
-        `http://localhost:3000/api/order/getuserorders/${userId}`,
+        `https://localhost:3000/api/order/getuserorders/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ export const useDeleteOrder = () => {
           throw new Error("No token found. Please log in.");
         }
         const response = await axios.delete(
-          `http://localhost:3000/api/order/deleteOrder/${orderId}`,
+          `https://localhost:3000/api/order/deleteOrder/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -124,7 +124,7 @@ export const useUpdateOrder = () => {
       updatedData: any;
     }) => {
       const response = await axios.put(
-        "http://localhost:3000/api/order/updateStatus",
+        "https://localhost:3000/api/order/updateStatus",
         { orderId, updatedData }
       );
 

@@ -138,7 +138,7 @@ export default function OrderHistory() {
                 {order.products.map((product, index) => (
                   <div key={index} className="flex items-center space-x-4">
                     <img
-                      src={`http://localhost:3000/${product.product.image.replace(
+                      src={`https://localhost:3000/${product.product.image.replace(
                         "public/",
                         ""
                       )}`}

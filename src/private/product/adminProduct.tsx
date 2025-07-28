@@ -128,7 +128,8 @@ export default function AdminProduct() {
       description: product.description,
       type: product.type,
     });
-    setPreviewImage(product.image);
+    const imageUrl = `https://localhost:3000/${product.image.replace("public/", "")}`;
+  setPreviewImage(imageUrl);
   };
 
   const handleDelete = (productId: string) => {
@@ -299,7 +300,7 @@ export default function AdminProduct() {
                     <td className="p-3 text-green-600">Rs {product.price}</td>
                     <td className="p-3">
                       <img
-                        src={`http://localhost:3000/${product.image.replace(
+                        src={`https://localhost:3000/${product.image.replace(
                           "public/",
                           ""
                         )}`}

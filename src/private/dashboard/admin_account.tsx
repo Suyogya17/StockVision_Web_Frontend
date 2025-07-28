@@ -105,7 +105,7 @@ const UserProfile = () => {
             src={
               selectedImage
                 ? URL.createObjectURL(selectedImage) // Preview selected image
-                : `http://localhost:3000/uploads/${user.image}`
+                : `https://localhost:3000/uploads/${user.image}`
             }
             alt="User Avatar"
             className="w-36 h-36 rounded-full border-4 border-gray-300 shadow-lg"

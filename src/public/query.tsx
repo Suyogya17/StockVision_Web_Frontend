@@ -15,7 +15,7 @@ export const useRegister = () => {
       username: string;
       address: string;
       password: string;
-    }) => axios.post("http://localhost:3000/api/auth/register", data),
+    }) => axios.post("https://localhost:3000/api/auth/register", data),
   });
 };
 
@@ -29,7 +29,7 @@ export const useLogin = () => {
       localStorage.removeItem("email");
 
       return axios
-        .post("http://localhost:3000/api/auth/login", data)
+        .post("https://localhost:3000/api/auth/login", data)
         .then((response) => {
           localStorage.setItem("token", response.data.token);
           localStorage.setItem("id", response.data.user._id);
@@ -46,7 +46,7 @@ export const useVerifyOTP = () => {
     mutationKey: ["VERIFY_OTP"],
     mutationFn: async (data: { email: string; otp: string }) => {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/verify-otp",
+        "https://localhost:3000/api/auth/verify-otp",
         data
       );
 
@@ -64,7 +64,7 @@ export const useUserUpdate = () => {
     mutationFn: (data: { formData: FormData; customerId: string }) => {
       const token = localStorage.getItem("token");
       return axios.put(
-        `http://localhost:3000/api/auth/updateUser/${data.customerId}`,
+        `https://localhost:3000/api/auth/updateUser/${data.customerId}`,
         data.formData,
         {
           headers: {
@@ -92,7 +92,7 @@ export const useGetUserProfile = () => {
       }
 
       const response = await axios.get(
-        "http://localhost:3000/api/auth/userfindbyid",
+        "https://localhost:3000/api/auth/userfindbyid",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ export const useGetUser = () => {
     queryKey: ["GET_USER_LIST"],
     queryFn: async () => {
       const response = await axios.get(
-        "http://localhost:3000/api/auth/getAllUser"
+        "https://localhost:3000/api/auth/getAllUser"
       );
       return response.data;
     },
@@ -124,7 +124,7 @@ export const useGetUser = () => {
 export const useForgotPassword = () => {
   return {
     forgotPassword: async (email: string) => {
-      const res = await axios.post("http://localhost:3000/api/auth/forgot-password", { email });
+      const res = await axios.post("https://localhost:3000/api/auth/forgot-password", { email });
       return res.data;
     },
     isLoading: false,

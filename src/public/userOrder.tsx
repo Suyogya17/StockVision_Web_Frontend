@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { usePlaceOrder } from "../private/order/orderQuery";
 
 interface Product {
   _id: string;
@@ -20,16 +19,17 @@ export default function OrderPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [shippingAddress, setShippingAddress] = useState("");
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [quantityError, setQuantityError] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const placeOrderMutation = usePlaceOrder();
+  useEffect(() => {
+    if (!product) {
+      toast.error("No product selected!");
+      navigate("/product");
+    }
+  }, [product, navigate]);
 
-  if (!product) {
-    toast.error("No product selected!");
-    navigate("/product");
-    return null;
-  }
+  if (!product) return null;
 
   const totalPrice = product.price * quantity;
 
@@ -47,67 +47,96 @@ export default function OrderPage() {
     }
   };
 
-  const handleOrder = () => {
-    if (!isConfirmationOpen) {
-      setIsConfirmationOpen(true);
-      return;
+  const parseJwt = (token: string) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
     }
+  };
+const handleKhaltiPayment = async () => {
+  if (isProcessing) return; // ✅ guard
+  setIsProcessing(true);    // ✅ immediately set to true
 
-    if (!shippingAddress) {
-      toast.error("Please enter a shipping address.");
-      return;
-    }
+  if (!shippingAddress.trim()) {
+    toast.error("Please enter a shipping address.");
+    setIsProcessing(false);
+    return;
+  }
 
-    if (quantity > product.quantity) {
-      toast.error(`Only ${product.quantity} units are available.`);
-      return;
-    }
+  if (quantity > product.quantity) {
+    toast.error(`Only ${product.quantity} units available.`);
+    setIsProcessing(false);
+    return;
+  }
 
-    const token = localStorage.getItem("token");
-    const customerId = token
-      ? JSON.parse(atob(token.split(".")[1])).id
-      : null;
+  const token = localStorage.getItem("token");
+  const customerId = token ? parseJwt(token)?.id : null;
+  if (!customerId) {
+    toast.error("User not authenticated.");
+    setIsProcessing(false);
+    return;
+  }
 
-    if (!customerId) {
-      toast.error("User not authenticated.");
-      return;
-    }
+  const orderBody = {
+    products: [{ product: product._id, quantity }],
+    totalPrice: product.price * quantity,
+    shippingAddress,
+    payment: { method: "khalti" },
+  };
 
-    const orderData = {
-      
-      products: [
-        {
-          product: product._id,
-          quantity: quantity, // ✅ number
-        },
-      ],
-      shippingAddress,
-      status: "pending",
-      paymentStatus: "pending",
-      totalPrice: totalPrice, // ✅ number
-    };
-    console.log("Sending Order Data:", orderData);
-
-    placeOrderMutation.mutate(orderData, {
-      onSuccess: () => {
-        toast.success("Order placed successfully! 🎉");
-        setShippingAddress("");
-        setQuantity(1);
-        navigate("/product");
+  try {
+    const saveOrderRes = await fetch("https://localhost:3000/api/order/createOrder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || "Failed to place order.");
-      },
+      body: JSON.stringify(orderBody),
     });
 
-    setIsConfirmationOpen(false);
-  };
+    const savedOrder = await saveOrderRes.json();
+    if (!saveOrderRes.ok) throw new Error(savedOrder.message || "Order saving failed");
+
+    const savedOrderId = savedOrder.orderDetails._id;
+    localStorage.setItem("orderData", JSON.stringify(savedOrder.orderDetails));
+
+    const initiateRes = await fetch("https://localhost:3000/api/order/khalti/initiate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        amount: product.price * quantity * 100,
+        purchase_order_id: savedOrderId,
+        purchase_order_name: product.productName,
+        customer_info: {
+          name: "Customer",
+          email: "customer@email.com",
+          phone: "9800000000",
+        },
+        return_url: "https://localhost:5173/orderhistory",
+        website_url: "https://localhost:5173",
+      }),
+    });
+
+    const paymentData = await initiateRes.json();
+    if (!initiateRes.ok) throw new Error(paymentData.message || "Failed to initiate payment");
+
+    window.location.href = paymentData.payment_url;
+  } catch (err: any) {
+    console.error("💥 Error:", err);
+    toast.error(err.message || "Something went wrong");
+    setIsProcessing(false);
+  }
+};
+
+
 
   return (
     <div className="w-full max-w-3xl p-8 bg-white shadow-2xl rounded-lg mx-auto mt-10 sm:mt-16">
-      <h2 className="text-3xl font-semibold text-center mb-6">
-        Place Your Order
-      </h2>
+      <h2 className="text-3xl font-semibold text-center mb-6">Place Your Order</h2>
       <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
         <img
           src={`https://localhost:3000/${product.image.replace("public/", "")}`}
@@ -115,9 +144,7 @@ export default function OrderPage() {
           className="w-48 h-48 object-cover rounded-lg border-4 border-gray-200 shadow-lg"
         />
         <div className="text-center md:text-left">
-          <h3 className="text-2xl font-medium text-gray-800">
-            {product.productName}
-          </h3>
+          <h3 className="text-2xl font-medium text-gray-800">{product.productName}</h3>
           <p className="text-lg text-gray-600">{product.description}</p>
           <p className="text-lg font-bold text-green-600">Rs {product.price}</p>
         </div>
@@ -125,73 +152,40 @@ export default function OrderPage() {
 
       <div className="space-y-6">
         <div className="p-6 border-2 border-gray-200 rounded-xl shadow-sm">
-          <label className="block text-sm font-medium text-gray-700">
-            Quantity
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Quantity</label>
           <input
             type="number"
             min="1"
             max={product.quantity}
             value={quantity}
             onChange={handleQuantityChange}
-            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <p className="text-sm text-gray-600 mt-2">
             <strong>{product.quantity}</strong> units available
           </p>
+          {quantityError && <p className="text-sm text-red-600 mt-2">{quantityError}</p>}
 
-          {quantityError && (
-            <p className="text-sm text-red-600 mt-2">{quantityError}</p>
-          )}
-
-          <label className="block text-sm font-medium text-gray-700 mt-4">
-            Total Price
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mt-4">Total Price</label>
           <p className="text-lg font-bold text-green-700">Rs {totalPrice}</p>
 
-          <label className="block text-sm font-medium text-gray-700 mt-4">
-            Shipping Address
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mt-4">Shipping Address</label>
           <input
             type="text"
             value={shippingAddress}
             onChange={(e) => setShippingAddress(e.target.value)}
-            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your shipping address"
           />
         </div>
 
-        {isConfirmationOpen ? (
-          <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-xl">
-            <p className="text-lg font-semibold">Confirm Your Order Details</p>
-            <p>
-              <strong>Quantity:</strong> {quantity}
-            </p>
-            <p>
-              <strong>Total Price:</strong> Rs {totalPrice}
-            </p>
-            <p>
-              <strong>Shipping Address:</strong> {shippingAddress}
-            </p>
-            <button
-              className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-              onClick={handleOrder}
-              disabled={placeOrderMutation.isPending}
-            >
-              {placeOrderMutation.isPending
-                ? "Processing..."
-                : "Confirm and Place Order"}
-            </button>
-          </div>
-        ) : (
-          <button
-            className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-            onClick={handleOrder}
-            disabled={placeOrderMutation.isPending}
-          >
-            {placeOrderMutation.isPending ? "Processing..." : "Place Order"}
-          </button>
-        )}
+        <button
+          className="w-full mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          onClick={handleKhaltiPayment}
+          disabled={isProcessing}
+        >
+          {isProcessing ? "Redirecting..." : "Pay with Khalti 💰"}
+        </button>
       </div>
     </div>
   );

@@ -61,25 +61,20 @@ export const usePlaceOrder = () => {
 
 // ========== Find Order by User ID ==============================
 export const useFindOrdersByCustomerId = (userId: string | null) => {
-  const token = localStorage.getItem("token");
-
   return useQuery({
-    queryKey: ["GET_USER_ORDER", userId],
+    queryKey: ["orders", userId],
     queryFn: async () => {
-      if (!token) throw new Error("No token found in localStorage");
-      if (!userId) throw new Error("Customer ID is missing!");
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         `https://localhost:3000/api/order/getuserorders/${userId}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Orders fetched from API:", response.data);
-
       return response.data;
     },
+    enabled: !!userId, // ✅ Only run when userId is set
+    retry: false,
   });
 };
 

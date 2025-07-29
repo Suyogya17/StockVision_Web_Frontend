@@ -20,6 +20,7 @@ import UserOrder from "./public/userOrder.tsx";
 import UserProduct from "./public/userProduct.tsx";
 import UserSupport from "./public/usersupport.tsx";
 import ResetPassword from "./public/restpassword.tsx"
+import KhaltiCallback from "./public/KhaltiCallback.tsx";
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
     path: "/order",
     element: <UserOrder />,
   },
+  {
+  path: "/khalti-callback",
+  element: <KhaltiCallback />,
+},
   {
     path: "/orderhistory",
     element: <UserOrderHistory />,

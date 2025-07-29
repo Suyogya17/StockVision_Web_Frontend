@@ -1,6 +1,6 @@
+import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function KhaltiCallback() {
@@ -42,16 +42,21 @@ export default function KhaltiCallback() {
         );
 
         if (response.data.success) {
-          toast.success("✅ Payment verified and order confirmed!");
+          toast.success("Payment verified and order confirmed!");
           // You can optionally clear localStorage or redirect
           localStorage.removeItem("orderData");
+          console.log("Verifying pidx:", pidx, "with orderId:", orderId);
+          console.log("📦 Fresh order from backend:", orderId);
           navigate("/orderhistory");
         } else {
+          localStorage.removeItem("orderData");
           toast.error("❌ Payment verification failed.");
         }
       } catch (error: any) {
         console.error("❌ Verification failed:", error);
-        toast.error(error.response?.data?.message || "Payment verification error.");
+        toast.error(
+          error.response?.data?.message || "Payment verification error."
+        );
       }
     };
 

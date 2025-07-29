@@ -121,7 +121,7 @@ export default function OrderPage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            amount: adjustedAmount * 100,
+            amount: rawAmount,
             purchase_order_id: savedOrderId,
             purchase_order_name: product.productName,
             customer_info: {

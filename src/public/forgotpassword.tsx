@@ -6,7 +6,7 @@ import { useForgotPassword } from "./query"; // Your custom React Query hook
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
-  const { forgotPassword, isLoading } = useForgotPassword();
+  const { forgotPassword } = useForgotPassword();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -29,18 +29,32 @@ const ForgotPasswordPage = () => {
     }
 
     try {
-      const res = await forgotPassword(email); // <- returns success or error from backend
+      const promise = forgotPassword(email);
 
-      if (res?.success) {
-        toast.success("Reset link sent successfully!", {
+      await toast.promise(promise, {
+        pending: {
+          render: () => "Sending reset link...",
+          className: "bg-blue-100 text-blue-800 font-semibold",
+        },
+        success: {
+          render({ data }) {
+            setEmailSent(true);
+            return data?.message || "Reset link sent successfully!";
+          },
           className: "bg-green-100 text-green-800 font-semibold",
-        });
-        setEmailSent(true);
-      } else {
-        toast.error(res?.message || "No account found with this email");
-      }
-    } catch (err: any) {
-      toast.error("Something went wrong. Please try again.");
+        },
+        error: {
+          render({ data }) {
+            const errorData = data as { message?: string };
+            return (
+              errorData?.message || "Invalid Email Account. Please try again."
+            );
+          },
+          className: "bg-red-100 text-red-800 font-semibold",
+        },
+      });
+    } catch (err) {
+      toast.error("Something went wrong. Try again.");
     }
   };
 
@@ -73,12 +87,9 @@ const ForgotPasswordPage = () => {
 
             <button
               type="submit"
-              disabled={isLoading}
-              className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg ${
-                isLoading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition`}
             >
-              {isLoading ? "Sending..." : "Send Reset Link"}
+              Send Reset Link
             </button>
           </form>
         )}

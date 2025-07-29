@@ -283,46 +283,69 @@ const RegisterPage: React.FC = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
-                <span className="px-4 text-gray-500">
-                  <FaLock />
-                </span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 focus:outline-none focus:border-blue-500"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="ml-auto px-6 text-gray-500 focus:outline-none"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {formData.password && (
-                <p
-                  className={`mt-1 text-sm font-medium ${
-                    passwordStrength === "Weak"
-                      ? "text-red-600"
-                      : passwordStrength === "Fair"
-                      ? "text-yellow-600"
-                      : passwordStrength === "Good"
-                      ? "text-blue-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  Password Strength: {passwordStrength}
-                </p>
-              )}
-            </div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    Password
+  </label>
+  <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
+    <span className="px-4 text-gray-500">
+      <FaLock />
+    </span>
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      value={formData.password}
+      onChange={handleInputChange}
+      required
+      className="w-full px-4 py-3 focus:outline-none focus:border-blue-500"
+      placeholder="Enter your password"
+    />
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="ml-auto px-6 text-gray-500 focus:outline-none"
+    >
+      {showPassword ? <FaEyeSlash /> : <FaEye />}
+    </button>
+  </div>
+
+  {/* Visual strength feedback */}
+  <div className="mt-2 space-y-1 text-sm">
+    <p className="flex items-center gap-2">
+      <span
+        className={`w-3 h-3 rounded-full ${
+          formData.password.length >= 8 ? "bg-green-500" : "bg-red-500"
+        }`}
+      ></span>
+      Minimum 8 characters
+    </p>
+    <p className="flex items-center gap-2">
+      <span
+        className={`w-3 h-3 rounded-full ${
+          /[A-Z]/.test(formData.password) ? "bg-green-500" : "bg-red-500"
+        }`}
+      ></span>
+      At least one uppercase letter
+    </p>
+    <p className="flex items-center gap-2">
+      <span
+        className={`w-3 h-3 rounded-full ${
+          /[0-9]/.test(formData.password) ? "bg-green-500" : "bg-red-500"
+        }`}
+      ></span>
+      At least one number
+    </p>
+    <p className="flex items-center gap-2">
+      <span
+        className={`w-3 h-3 rounded-full ${
+          /[^A-Za-z0-9]/.test(formData.password)
+            ? "bg-green-500"
+            : "bg-red-500"
+        }`}
+      ></span>
+      At least one special character
+    </p>
+  </div>
+</div>
 
             {/* Submit Button */}
             <button
